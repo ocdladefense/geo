@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind forms;
+@plugin "daisyui";
+
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+
+.modal .toc {
+    padding-bottom: 25px;
+}

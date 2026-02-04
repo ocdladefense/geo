@@ -1,0 +1,12 @@
+{
+    "packageDirectories": [
+        {
+            "path": "src/sfdx",
+            "default": true
+        }
+    ],
+    "name": "OCDLA Package Template",
+    "namespace": "",
+    "sfdcLoginUrl": "https://test.salesforce.com",
+    "sourceApiVersion": "65.0"
+}
