@@ -176,38 +176,7 @@ Criminal Appellate 1175 Court St NE Salem Oregon 97301-4030
         This page requires JavaScript.
     </noscript>
 
-    <script>
 
-
-        // Initialize and add the map
-        let map;
-
-        async function initMap()
-        {
-            // The location of Uluru
-            const position = { lat: -25.344, lng: 131.031 };
-            // Request needed libraries.
-            //@ts-ignore
-            // const { Map } = await google.maps.importLibrary("maps");
-            // const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-            await google.maps.importLibrary("geometry");
-            await google.maps.importLibrary("geocoding");
-
-        }
-
-
-
-
-
-        domReady(() =>
-        {
-            // Display body when DOM is loaded
-            document.body.style.visibility = 'visible';
-        });
-    </script>
-
-    <script async src="https://maps.googleapis.com/maps/api/js?key=GOOGLE_MAPS_API_KEY&callback=initMap">
-    </script>
     <script src="/sw.js"></script>
 </body>
 
