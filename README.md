@@ -35,7 +35,8 @@ Use <code>pm2</code> to run this server as a daemon.
 * <code>sudo pm2 status</code> - Show the status of currently running node servers.
 * <code>sudo pm2 restart [app-name]</code> - Restart an app that has been updated.
 * <code>sudo pm2 logs [app-name]</code> - Show the stdout and stderr logs for the specified app.
-
+* <code>sudo pm2 startup</code> - Generate startup scripts.
+* <code>sudo pm2 save</code> - Save the state of the current pm2 apps so they are restored upon startup.
 
 ### Webpack server environment:
 1. Preview the base website using <code>npm run watch</code>.
