@@ -5,6 +5,7 @@
  */
 
 import path from "path";
+import cors from "cors";
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
 import express from 'express';
@@ -27,6 +28,7 @@ let houseDistricts, senateDistricts;
 console.log(process.cwd());
 
 // Serve static files from the 'dist' directory
+app.use(cors());
 app.use(express.static('dist'));
 app.use(cookieParser());
 app.use(express.json());
