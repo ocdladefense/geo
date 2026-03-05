@@ -29,10 +29,11 @@ export default function LegislativeAction() {
                     {legislators.map(legislator => (
 
                         <li className="toc-entry mb-2 border-b border-gray-200 py-6">
-                            <a className="cursor-pointer" target="_new">
+                            <a className="cursor-pointer" target="_new" href={legislator.WebSiteUrl}>
                                 <span className="block font-bold">District {legislator.DistrictNumber}</span>
                                 <span className="block">{legislator.Title + ' ' + legislator.FirstName + ' ' + legislator.LastName} ({legislator.Party})</span>
                                 <span className="block"><a href={`mailto:${legislator.EmailAddress}`}>{legislator.EmailAddress}</a></span>
+                                <img src={legislator.ImageUrl} className="w-32 h-auto mt-2" alt={`${legislator.FirstName} ${legislator.LastName}`} />
                             </a>
                         </li>
                     ))}

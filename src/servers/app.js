@@ -17,13 +17,14 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import District from '../js/utils/District.js';
 import Geocoder from '../js/utils/Geocoder.js';
 
+
 const app = express();
 const port = process.env.PORT || 80;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const SF_ACCESS_TOKEN = process.env.SF_OAUTH_SESSION_ACCESS_TOKEN_OVERRIDE;
 let houseDistricts, senateDistricts;
-
+console.log(process.cwd());
 
 // Serve static files from the 'dist' directory
 app.use(express.static('dist'));
@@ -94,7 +95,10 @@ app.get("/legislators/:type", async (req, res) => {
 
     const legislators = await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
     // With parser
-    var parser = new xml2js.Parser(/* options */);
+    var parser = new xml2js.Parser({
+        trim: false,          // Do not trim whitespaces
+        explicitCharkey: true // Force _ key for text nodes
+    });
     let result = await parser.parseStringPromise(legislators);
     // res.json(result);
 
@@ -106,17 +110,40 @@ app.get("/legislators/:type", async (req, res) => {
         let properties = content["m:properties"][0];
 
         if (!properties) return {};
-        console.log(properties);
+        // console.log(properties);
 
-        let firstName = properties["d:FirstName"][0];
-        let lastName = properties["d:LastName"][0];
-        let sessionKey = properties["d:SessionKey"][0];
-        let districtNumber = properties["d:DistrictNumber"][0]["_"];
-        let emailAddress = properties["d:EmailAddress"][0];
-        let title = properties["d:Title"][0];
-        let party = properties["d:Party"][0];
-        let chamber = properties["d:Chamber"][0];
+        let webSiteUrl = properties["d:WebSiteUrl"][0]._;
+        // console.log("WebSiteUrl:", webSiteUrl)._;
+        let legislatorCode = properties["d:LegislatorCode"][0]._;
+        let firstName = properties["d:FirstName"][0]._;
+        let lastName = properties["d:LastName"][0]._;
+        let sessionKey = properties["d:SessionKey"][0]._;
+        let districtNumber = properties["d:DistrictNumber"][0]._;
+        let emailAddress = properties["d:EmailAddress"][0]._;
+        let title = properties["d:Title"][0]._;
+        let party = properties["d:Party"][0]._;
+        let chamber = properties["d:Chamber"][0]._;
 
+
+
+        // Compute the URL to the legislator's jpg image.
+        let codeParts = legislatorCode.split(" ");
+        let type = codeParts.shift();
+        let code = codeParts.join();
+        code = code.replace(/\,/g, "");
+        code = webSiteUrl && webSiteUrl.split("/").pop();
+
+
+        // Build the URL.
+
+        let parts = ["https://www.oregonlegislature.gov"];
+        parts = ["https://www.oregonlegislature.gov", `${code}`, "PublishingImages/member_photo.jpg"];
+        // parts.push(chamber == "S" ? "senate" : "house");
+        // parts.push("MemberPhotos");
+        // parts.push(`${code}.jpg`);
+
+
+        let imageUrl = parts.join("/");
 
         return {
             FirstName: firstName,
@@ -126,7 +153,9 @@ app.get("/legislators/:type", async (req, res) => {
             EmailAddress: emailAddress,
             Title: title,
             Party: party,
-            Chamber: chamber
+            Chamber: chamber,
+            ImageUrl: imageUrl,
+            WebSiteUrl: webSiteUrl
         };
 
     });
@@ -137,6 +166,8 @@ app.get("/legislators/:type", async (req, res) => {
 
 
     filtered = filtered.filter(leg => leg.Chamber == (req.params.type == "senators" ? "S" : "H"));
+
+    console.log(filtered);
 
     res.json(filtered.sort((a, b) => {
         return parseInt(a.DistrictNumber) - parseInt(b.DistrictNumber);
@@ -464,7 +495,7 @@ app.get("/connect", async (req, res) => {
 
 // Define a route to serve index.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
 
@@ -472,7 +503,7 @@ app.get('/', (req, res) => {
 
 // Define a route to serve index.html
 app.all('/{*any}', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
 

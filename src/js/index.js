@@ -8,6 +8,9 @@ import Sites from './components/ui/Sites.jsx';
 import LegislativeAction from './components/legislative/LegislativeAction.jsx';
 import LegislativeActionHome from './components/legislative/LegislativeActionHome.jsx';
 
+
+
+
 if (process.env.NODE_ENV === 'debug')
 {
     setDebugLevel(1);
@@ -38,19 +41,12 @@ root.render(
         <ScrollToTop />
         <Routes>
             <Route path="/" element={<App />}>
-                <Route index element={<BookCovers />} />
                 <Route path="sites">
                     <Route index element={<Sites />} />
                 </Route>
                 <Route path="action">
                     <Route index element={<LegislativeActionHome />} />
                     <Route path=":type" element={<LegislativeAction />} />
-                </Route>
-                <Route path="formbook">
-                    <Route path=":chapterId/:formId?" element={<FormbookLayout />} />
-                </Route>
-                <Route path="book">
-                    <Route path=":bookId/:chapterId" element={<BonLayout />} />
                 </Route>
             </Route>
         </Routes>

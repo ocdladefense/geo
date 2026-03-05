@@ -14,12 +14,6 @@ function isLoggedIn() {
     let sessionInstanceUrl = getCookie("instanceUrl");
     let sessionAccessToken = getCookie("accessToken");
 
-    if (process.env.SF_OAUTH_SESSION_ACCESS_TOKEN_OVERRIDE)
-    {
-        sessionInstanceUrl = process.env.SF_OAUTH_SESSION_INSTANCE_URL_OVERRIDE;
-        sessionAccessToken = process.env.SF_OAUTH_SESSION_ACCESS_TOKEN_OVERRIDE;
-    }
-
     return !!sessionAccessToken;
 }
 

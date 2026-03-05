@@ -2,7 +2,6 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
-import Dotenv from 'dotenv-webpack';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +14,9 @@ export default env => {
     console.log(env);
 
     return {
+        dotenv: {
+            prefix: ["GOOGLE_", "SF_"]
+        },
         entry: {
             app: path.resolve(__dirname, "./src/js/index.js"),
             map: path.resolve(__dirname, "./src/js/map.js")
@@ -112,7 +114,6 @@ export default env => {
             ]
         },
         plugins: [
-            new Dotenv(),
             new HtmlWebpackPlugin({
                 template: path.resolve(__dirname, "./src/pages/index.html"),
                 chunks: ["app"],
