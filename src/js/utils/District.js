@@ -1,4 +1,8 @@
-
+/**
+ * @class District
+ * A class representing a legislative district, with methods for determining whether a point is within the district.
+ * The constructor takes an array of coordinates in the format [longitude, latitude] and calculates the northernmost, southernmost, westernmost, and easternmost points of the district.
+ */
 
 const THE_DIVIDE = -121.443;
 
