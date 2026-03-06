@@ -17,7 +17,7 @@ function getIsEasternOregonTest(longitude) {
 }
 
 
-const isEasternOregon = getIsEasternOregonTest(THE_DIVIDE);
+// const isEasternOregon = getIsEasternOregonTest(THE_DIVIDE);
 
 
 
@@ -72,11 +72,11 @@ export default class District {
         this.id = id;
         this.coords = coords[0]; // In Oregon district boundaries are contiguous, so we can use the first set of coordinates for the main polygon. If there were multiple polygons (e.g., islands), we would need to check all of them. 
 
-        this.googleKmlPolygon = District.getAsGoogleKmlPolygon(coords);
-        this.northPoint = District.getNorthernmostPoint(coords);
-        this.southPoint = District.getSouthernmostPoint(coords);
-        this.westPoint = District.getWesternmostPoint(coords);
-        this.eastPoint = District.getEasternmostPoint(coords);
+        // this.googleKmlPolygon = District.getAsGoogleKmlPolygon(this.coords);
+        this.northPoint = District.getNorthernmostPoint(this.coords);
+        this.southPoint = District.getSouthernmostPoint(this.coords);
+        this.westPoint = District.getWesternmostPoint(this.coords);
+        this.eastPoint = District.getEasternmostPoint(this.coords);
     }
 
 

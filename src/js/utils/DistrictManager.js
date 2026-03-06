@@ -1,4 +1,4 @@
-import District from './client/District.js';
+import District from './District.js';
 
 
 
