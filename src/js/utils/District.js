@@ -68,7 +68,7 @@ export default class District {
     senator = null;
 
 
-    constructor(id, coords) {
+    constructor(coords, id) {
         this.id = id;
         this.coords = coords[0]; // In Oregon district boundaries are contiguous, so we can use the first set of coordinates for the main polygon. If there were multiple polygons (e.g., islands), we would need to check all of them. 
 

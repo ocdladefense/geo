@@ -306,7 +306,7 @@ function loadHouseDistricts() {
 
     houseDistricts = housecoords.features.map((district, index) => {
         let coords = district.geometry.coordinates;
-        return new District(index + 1, coords);
+        return new District(coords, index + 1);
     });
 
 }
@@ -320,7 +320,7 @@ function loadSenateDistricts() {
 
     senateDistricts = senatecoords.features.map((district, index) => {
         let coords = district.geometry.coordinates;
-        return new District(index + 1, coords);
+        return new District(coords, index + 1);
     });
 
 }
