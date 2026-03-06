@@ -305,7 +305,7 @@ function loadHouseDistricts() {
     let housecoords = JSON.parse(geojsonHouse);
 
     houseDistricts = housecoords.features.map((district, index) => {
-        let coords = district.geometry.coordinates[0];
+        let coords = district.geometry.coordinates;
         return new District(index + 1, coords);
     });
 
@@ -319,7 +319,7 @@ function loadSenateDistricts() {
     let senatecoords = JSON.parse(geojsonSenate);
 
     senateDistricts = senatecoords.features.map((district, index) => {
-        let coords = district.geometry.coordinates[0];
+        let coords = district.geometry.coordinates;
         return new District(index + 1, coords);
     });
 
