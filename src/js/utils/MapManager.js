@@ -2,29 +2,22 @@ import { createScriptElement, injectScriptElement } from "./html.js";
 
 
 
-class MapManager {
-    static instance = null; // Singleton instance
-    map = null; // Google Map instance
-    currentPolygons = new Map(); // Track current district polygons on the map for cleanup
-    currentMarkers = []; // Track current address markers on the map for cleanup
+export default class MapManager {
 
-    constructor() {
-        // Enforce singleton pattern
-        if (MapManager.instance)
-        {
-            return MapManager.instance;
-        }
-        MapManager.instance = this;
-    }
 
-    // Static method to get singleton instance
-    static getInstance() {
-        if (!MapManager.instance)
-        {
-            MapManager.instance = new MapManager();
-        }
-        return MapManager.instance;
-    }
+    // Google Map instance
+    map = null;
+
+    // Track current district polygons on the map for cleanup
+    currentPolygons = new Map();
+
+    // Track current address markers on the map for cleanup
+    currentMarkers = [];
+
+
+
+    constructor() { }
+
 
     // Getter for the map instance
     getMap() {
@@ -179,7 +172,7 @@ async function initMap() {
 
     // Initialize the map
     let map = new google.maps.Map(mapEl, {
-        zoom: 6,
+        zoom: 7,
         center: { lat: 43.9336, lng: -120.5583 },
         mapTypeId: 'roadmap'
     });
@@ -211,4 +204,3 @@ function load() {
 
 
 
-export default MapManager; // Export the singleton instance of MapManager

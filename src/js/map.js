@@ -33,7 +33,7 @@ function foobar() {
 domReady(async function() {
     districtManager = new DistrictManager();
     cache = Cache.loadFromLocalStorage();
-    mapManager = MapManager.getInstance();
+    mapManager = new MapManager();
 
     // Load all data
     await districtManager.loadDistricts();
