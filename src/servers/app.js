@@ -27,6 +27,13 @@ const SF_ACCESS_TOKEN = process.env.SF_OAUTH_SESSION_ACCESS_TOKEN_OVERRIDE;
 let houseDistricts, senateDistricts;
 console.log(process.cwd());
 
+let serverCache = {
+    hits: 0,
+    misses: 0,
+    results: [],
+    variants: {}
+};
+
 // Serve static files from the 'dist' directory
 app.use(cors());
 app.use(express.static('dist'));
@@ -38,7 +45,22 @@ loadHouseDistricts();
 loadSenateDistricts();
 
 
+// Cache API endpoints
+app.get("/api/cache", (req, res) => {
+    res.json(serverCache);
+});
 
+app.post("/api/cache", (req, res) => {
+    const { hits, misses, results, variants } = req.body;
+
+    if (hits !== undefined) serverCache.hits = hits;
+    if (misses !== undefined) serverCache.misses = misses;
+    if (results !== undefined) serverCache.results = results;
+    if (variants !== undefined) serverCache.variants = variants;
+
+    console.log(`Cache saved to server. Hits: ${serverCache.hits}, Misses: ${serverCache.misses}, Variants: ${JSON.stringify(serverCache.variants)}`);
+    res.json({ success: true, message: 'Cache saved'});
+});
 
 
 
@@ -54,15 +76,43 @@ app.get("/geocode", async (req, res) => {
 
 app.get("/legislators/:type", async (req, res) => {
 
+    // If the important json file already exists skip all this below and return the json file
+    let json;
+    let fileExists = fs.existsSync(`./dist/data/legislators.json`);
 
+    if (fileExists) {
+        let content = fs.readFileSync(`./dist/data/legislators.json`, 'utf-8');
+
+        json = JSON.parse(content);
+    } else {
+        json = await slowLoadData();
+    }
+
+    let filtered = json.filter(leg => leg.Chamber == (req.params.type == "senators" ? "S" : "H"));
+
+    console.log(filtered);
+
+    res.json(filtered.sort((a, b) => {
+        return parseInt(a.DistrictNumber) - parseInt(b.DistrictNumber);
+    }));
+
+
+
+
+
+});
+
+async function slowLoadData() {
     const SESSION = "2026R1";//"2025I1"; // "2026R1" doesn't begin until Feb. 2.
 
-    const legislators = await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
     // With parser
     var parser = new xml2js.Parser({
         trim: false,          // Do not trim whitespaces
         explicitCharkey: true // Force _ key for text nodes
     });
+    let legislators;
+    let fileExists = fs.existsSync('./dist/data/legislators.xml');
+    legislators = fileExists ? fs.readFileSync('./dist/data/legislators.xml', 'utf-8') : await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
     let result = await parser.parseStringPromise(legislators);
     // res.json(result);
 
@@ -129,19 +179,19 @@ app.get("/legislators/:type", async (req, res) => {
     let filtered = all.filter((leg) => leg.SessionKey.indexOf(SESSION) !== -1);
 
 
-    filtered = filtered.filter(leg => leg.Chamber == (req.params.type == "senators" ? "S" : "H"));
+    // Save the fetched data to a local file for future use if it doesn't already exist
+    if (!fileExists) {
+        fs.writeFileSync('./dist/data/legislators.json', JSON.stringify(filtered), 'utf-8');
+    }
 
-    console.log(filtered);
+    if (!fileExists) {
+        // Save the fetched data to a local file for future use
+        fs.writeFileSync('./dist/data/legislators.xml', legislators, 'utf-8');
+    }
+        
 
-    res.json(filtered.sort((a, b) => {
-        return parseInt(a.DistrictNumber) - parseInt(b.DistrictNumber);
-    }));
-
-
-
-});
-
-
+    return filtered;
+}
 
 app.get("/legislators", async (req, res) => {
 

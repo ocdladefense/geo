@@ -32,7 +32,15 @@ function foobar() {
 // Work #1 - Load data and initialize map.
 domReady(async function() {
     districtManager = new DistrictManager();
-    cache = Cache.loadFromLocalStorage();
+    // Load cache from storage
+    cache = await Cache.loadFromDisk();
+    // If server cache is empty, load from localStorage as fallback
+    if (cache.getResults().length === 0) {
+        const localCache = Cache.loadFromLocalStorage();
+        if (localCache.getResults().length > 0) {
+            cache = localCache;
+        }
+    }
     mapManager = new MapManager();
 
     // Load all data
@@ -84,10 +92,22 @@ async function doWork(addresses) {
         // First check the cache for this address by ZIP
         const cached = cache.lookup(addr.zip);
 
-        // Not in cache, find districts first, then store
-        addr.house = null == cached ? districtManager.findHouseDistrict(addr.location) : cached.house;
-        addr.senate = null == cached ? districtManager.findSenateDistrict(addr.location) : cached.senate;
+        // Check if cached districts match the geocoded location
+        let canUseCache = false;
 
+        // If we have cached data, verify it against the geocoded location to ensure it's still valid
+        if (cached) {
+            const cachedHouse = districtManager.getHouseDistrict(cached.house);
+            const cachedSenate = districtManager.getSenateDistrict(cached.senate);
+
+            canUseCache = !!cachedHouse && !!cachedSenate;
+                //&& districtManager.isLocationInDistrict(addr.location, cachedHouse)
+                //&& districtManager.isLocationInDistrict(addr.location, cachedSenate);
+        }
+
+        // If cache is valid, use it. Otherwise, perform lookup and update cache.
+        addr.house = canUseCache ? cached.house : districtManager.findHouseDistrict(addr.location);
+        addr.senate = canUseCache ? cached.senate : districtManager.findSenateDistrict(addr.location);
 
         // Might not want to do this each time.
         cache.put(addr);
@@ -97,6 +117,7 @@ async function doWork(addresses) {
 
 
     cache.saveToLocalStorage();
+    await cache.saveToDisk();
     // Save result in the cache
     // Result has house, senate, and zipcode
 

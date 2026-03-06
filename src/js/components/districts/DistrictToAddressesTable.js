@@ -7,52 +7,44 @@ import { attatchTableRowListeners } from './DistrictRowListener.js';
 
 // Display text results for both house and senate districts 
 export function displayTextResults(houseDistrictsWithAddresses, senateDistrictsWithAddresses) {
-    const mapManager = MapManager.getInstance();
+    const mapManager = new MapManager();
     const districtManager = new DistrictManager();
 
     // Create the district selector dropdown and info div
     const { select, infoDiv } = createDistrictSelector();
 
+    const setupDistrictPolygons = (districtType, districts, buildTableFunc, getInfoFunc) => {
+        infoDiv.innerHTML = buildTableFunc(districts);
+        
+        // Determine polygon key prefix based on district type
+        const polygonPrefix = districtType === 'house' ? 'H' : 'S';
+        
+        // Shade polygons for the relevant districts and make them clickable
+        districts.forEach(district => {
+            const polygonId = polygonPrefix + district.id;
+            
+            mapManager.shadePolygon(polygonId);
+            mapManager.makePolygonClickable(
+                polygonId,
+                true,
+                (event) => getInfoFunc(district, event.latLng, districtManager)
+            );
+        });
+
+        attatchTableRowListeners(districts, districtType, mapManager);
+    };
+
     select.addEventListener('change', function() {
         const selectedValue = this.value;
-
+        
         // Reset all polygons to unshaded state
         mapManager.resetPolygons();
         infoDiv.innerHTML = '';
-
-        if (selectedValue === 'house')
-        {
-            // Display house district info and shade those house districts on the map
-            infoDiv.innerHTML = buildHouseTable(houseDistrictsWithAddresses);
-
-            houseDistrictsWithAddresses.forEach(district => {
-                // Shade the polygon
-                mapManager.shadePolygon(mapManager.getPolygonType('house', district.id));
-                // Make it clickable
-                mapManager.makePolygonClickable(
-                    mapManager.getPolygonType('house', district.id),
-                    true,
-                    (event) => district.getHouseDistrictInfo(event.latLng, districtManager)
-                );
-            });
-
-            attatchTableRowListeners(houseDistrictsWithAddresses, 'house', mapManager);
-        } else if (selectedValue === 'senate')
-        {
-            // Display senate district info and shade those senate districts on the map
-            infoDiv.innerHTML = buildSenateTable(senateDistrictsWithAddresses);
-            senateDistrictsWithAddresses.forEach(district => {
-                // Shade the polygon
-                mapManager.shadePolygon(mapManager.getPolygonType('senate', district.id));
-                // Make it clickable
-                mapManager.makePolygonClickable(
-                    mapManager.getPolygonType('senate', district.id),
-                    true,
-                    (event) => district.getSenateDistrictInfo(event.latLng, districtManager)
-                );
-            });
-
-            attatchTableRowListeners(senateDistrictsWithAddresses, 'senate', mapManager);
+        
+        if (selectedValue === 'house') {
+            setupDistrictPolygons('house', houseDistrictsWithAddresses, buildHouseTable, (district, latLng, dm) => district.getHouseDistrictInfo(latLng, dm));
+        } else if (selectedValue === 'senate') {
+            setupDistrictPolygons('senate', senateDistrictsWithAddresses, buildSenateTable, (district, latLng, dm) => district.getSenateDistrictInfo(latLng, dm));
         }
     });
 }

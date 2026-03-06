@@ -136,6 +136,10 @@ export default env => {
                         from: path.resolve(__dirname, "src/data"),
                         to: path.resolve(__dirname, "dist/data")
                     },
+                    {
+                        from: path.resolve(__dirname, "src/cache"),
+                        to: path.resolve(__dirname, "dist/cache")
+                    },
                     "src/.nojekyll",
                     "src/manifest.json",
                     "src/sw.js",
