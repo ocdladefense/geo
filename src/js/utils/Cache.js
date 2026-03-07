@@ -180,8 +180,13 @@ export default class Cache {
 
         // Check if we have a cached entry for this ZIP
         const cached = this.results.get(zipcode);
+        
+        if (!cached) {
+            this.misses++;
+            return null;
+        }
 
-        if (this.variants[zipcode] || !cached)
+        if (cached && cached.length > 1) 
         {
             this.misses++;
             return null;
@@ -190,14 +195,13 @@ export default class Cache {
 
         this.hits++;
         // this.saveToLocalStorage(zipcode, cached);
-        return cached;
+        return cached[0];
 
     }
 
     // Store a result in the cache
     put(addr) {
-        if (!addr.zip)
-        {
+        if (!addr.zip) {
             console.warn('Address has no ZIP, skipping cache store:', addr.address);
             return;
         }
@@ -217,44 +221,16 @@ export default class Cache {
 
         // Check for variant data.
         let existing = this.results.get(addr.zip);
-
-
-        if (!!existing)
-        {
-
-            let sameHouse = existing.house === store.house;
-            let sameSenate = existing.senate === store.senate;
-            // Remove it from the results map;
-
-            if (!sameHouse || !sameSenate)
-            {
-
-                // this.results.delete(addr.zip);
-                // We have a variant! Store it in the variants map.
-
-                if (!this.variants[addr.zip])
-                {
-                    this.variants[addr.zip] = [];
-                }
+        if (null == existing) {
+            this.results.set(addr.zip, [store]);
+        }
+        else {
+            const exists = existing.some(e => e.house === store.house && e.senate === store.senate);
             
-                // Check if this variant already exists for this ZIP to avoid duplicates
-                const variantExists = this.variants[addr.zip].some(v =>
-                    v.house === store.house && v.senate === store.senate
-                );
-
-                // Only store the variant if it doesn't already exist
-                if (!variantExists)
-                {
-                    this.variants[addr.zip].push(store);
-                    console.log(`Variant found for ZIP ${addr.zip}: House ${store.house}, Senate ${store.senate}`);
-                }
-                else {
-                    console.log(`Variant already exists for ZIP ${addr.zip}: House ${store.house}, Senate ${store.senate}`);
-                }
-            }
+            !exists && existing.push(store) && this.results.set(addr.zip, existing);
         }
         // Store in memory Map
-        this.results.set(addr.zip, store);
+
     }
 
     // Get all cached results

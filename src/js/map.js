@@ -33,14 +33,12 @@ function foobar() {
 domReady(async function() {
     districtManager = new DistrictManager();
     // Load cache from storage
-    cache = await Cache.loadFromDisk();
+    //cache = await Cache.loadFromDisk();
     // If server cache is empty, load from localStorage as fallback
-    if (cache.getResults().length === 0) {
-        const localCache = Cache.loadFromLocalStorage();
-        if (localCache.getResults().length > 0) {
-            cache = localCache;
-        }
-    }
+
+    cache = Cache.loadFromLocalStorage();
+
+    
     mapManager = new MapManager();
 
     // Load all data
@@ -91,27 +89,34 @@ async function doWork(addresses) {
 
         // First check the cache for this address by ZIP
         const cached = cache.lookup(addr.zip);
-
-        // Check if cached districts match the geocoded location
-        let canUseCache = false;
+        
 
         // If we have cached data, verify it against the geocoded location to ensure it's still valid
+        /*
         if (cached) {
             const cachedHouse = districtManager.getHouseDistrict(cached.house);
             const cachedSenate = districtManager.getSenateDistrict(cached.senate);
+        } else {
 
-            canUseCache = !!cachedHouse && !!cachedSenate;
-                //&& districtManager.isLocationInDistrict(addr.location, cachedHouse)
-                //&& districtManager.isLocationInDistrict(addr.location, cachedSenate);
-        }
 
-        // If cache is valid, use it. Otherwise, perform lookup and update cache.
-        addr.house = canUseCache ? cached.house : districtManager.findHouseDistrict(addr.location);
-        addr.senate = canUseCache ? cached.senate : districtManager.findSenateDistrict(addr.location);
 
         // Might not want to do this each time.
         cache.put(addr);
+        }*/
+        // If cache is valid, use it. Otherwise, perform lookup and update cache.
+        addr.house = cached ? cached.house : districtManager.findHouseDistrict(addr.location);
+        addr.senate = cached ? cached.senate : districtManager.findSenateDistrict(addr.location);
+        if (cached) {
+            let house = districtManager.getHouseDistrict(addr.house);
+            
+            if (house.isOutside([addr.location.lng(), addr.location.lat()])) {
+                addr.house = districtManager.findHouseDistrict(addr.location);
+                addr.senate = districtManager.findSenateDistrict(addr.location);     
+            }
+        }
+        cache.put(addr); // Update cache with new result, even if it was a hit, to ensure we have the latest geocoding info in case of variants
 
+        // the cache says addr.zip is in a certain district but if we load that district and we ask if its inside itll say no 
     });
 
 
