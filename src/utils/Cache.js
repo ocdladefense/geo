@@ -12,9 +12,12 @@ export default class Cache {
 
     variants;
 
+    state = Cache.STATE_CLOSED;
+
     static META_KEY = 'district_cache_stats';
     static VARIANTS_KEY = 'district_cache_variants';
-
+    static STATE_OPEN = 'open';
+    static STATE_CLOSED = 'closed';
     // A cache key that corresponds to multiple values.
     // Expectation is that a single cache key correspond to a single value.
 
@@ -26,6 +29,14 @@ export default class Cache {
         this.results = new Map(); // Store results with zipcode as key
         this.variants = {}; // Store variant data keyed by zipcode
         this.STATS_KEY = Cache.META_KEY; // Key for storing stats
+    }
+
+    open() {
+        this.state = Cache.STATE_OPEN;
+    }
+
+    close() {
+        this.state = Cache.STATE_CLOSED;
     }
 
     // Load cache results and stats from localStorage
@@ -77,10 +88,12 @@ export default class Cache {
 
     // This loader will work in the context of Node and Express server.
     static async loadFromDisk() {
-        try{
+        try
+        {
             // Attempt to fetch cache data from server endpoint
             const response = await fetch('/api/cache');
-            if (!response.ok) {
+            if (!response.ok)
+            {
                 console.error(`Failed to load cache from disk: ${response.status}`);
                 return new Cache();
 
@@ -88,7 +101,8 @@ export default class Cache {
             // If successful, parse the JSON and create a Cache instance
             const data = await response.json();
             return Cache.fromJSON(data);
-        } catch (e) {
+        } catch (e)
+        {
             // If there's an error (e.g., network issue), log it and return an empty cache
             console.error('Error loading cache from disk:', e);
             return new Cache();
@@ -97,7 +111,8 @@ export default class Cache {
 
     // Save cache to server
     async saveToDisk() {
-        try {
+        try
+        {
             // Convert cache to JSON and send it to the server
             const data = this.toJSON();
             // Use fetch to POST the data to the server endpoint
@@ -109,13 +124,15 @@ export default class Cache {
                 body: JSON.stringify(data)
             });
             // Check if the response is OK
-            if (!response.ok) {
+            if (!response.ok)
+            {
                 console.error(`Failed to save cache to disk: ${response.status}`);
                 return false; // Indicate failure
-                
+
             }
             return true; // Indicate success
-        } catch (e) {
+        } catch (e)
+        {
             console.error('Error saving cache to disk:', e);
             return false; // Indicate failure
         }
@@ -175,13 +192,18 @@ export default class Cache {
 
     // Look up a result by zipcode
     lookup(zipcode) {
-        if (!zipcode) return null; // Guard against undefined zip
+
+        // Guard against undefined zipcode.
+        // Also, if the cache is "closed" we should not return any results, even if they exist, to ensure we don't accidentally use stale data.
+        // This can also be used to better identify variant cache items.
+        if (!zipcode || this.state === Cache.STATE_CLOSED) return null;
 
 
         // Check if we have a cached entry for this ZIP
         const cached = this.results.get(zipcode);
-        
-        if (!cached) {
+
+        if (!cached)
+        {
             this.misses++;
             return null;
         }
@@ -201,7 +223,8 @@ export default class Cache {
 
     // Store a result in the cache
     put(addr) {
-        if (!addr.zip) {
+        if (!addr.zip)
+        {
             console.warn('Address has no ZIP, skipping cache store:', addr.address);
             return;
         }
@@ -214,19 +237,22 @@ export default class Cache {
         };
 
         // If either district is null skip caching
-        if (store.house === null || store.senate === null) {
+        if (store.house === null || store.senate === null)
+        {
             console.warn('Address has null district info, skipping cache store:', addr.address);
             return;
         }
 
         // Check for variant data.
         let existing = this.results.get(addr.zip);
-        if (null == existing) {
+        if (null == existing)
+        {
             this.results.set(addr.zip, [store]);
         }
-        else {
+        else
+        {
             const exists = existing.some(e => e.house === store.house && e.senate === store.senate);
-            
+
             !exists && existing.push(store) && this.results.set(addr.zip, existing);
         }
         // Store in memory Map
@@ -241,7 +267,8 @@ export default class Cache {
     // Get all variants
     getVariants() {
         // Return all variants if no ZIP provided, otherwise return variants for that ZIP
-        if (zipcode) {
+        if (zipcode)
+        {
             return this.variants[zipcode] || [];
         }
         return this.variants;

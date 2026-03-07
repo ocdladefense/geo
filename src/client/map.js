@@ -1,11 +1,11 @@
-import MapManager from './utils/MapManager.js';
-import DistrictManager from './utils/DistrictManager.js';
-import Address from './utils/Address.js';
-import Cache from './utils/Cache.js';
-import { domReady } from './utils/domReady.js';
-import { displayTextResults } from './components/districts/DistrictToAddressesTable.js';
-import LookupTable from './components/districts/LookupTable.jsx';
-import LegislativeDistrictLookupResult from './utils/LegislativeDistrictLookupResult.js';
+import MapManager from '../utils/MapManager.js';
+import DistrictManager from '../utils/DistrictManager.js';
+import Address from '../utils/Address.js';
+import Cache from '../utils/Cache.js';
+import { domReady } from '../utils/domReady.js';
+import { displayTextResults } from '../components/districts/DistrictToAddressesTable.js';
+import LookupTable from '../components/districts/LookupTable.jsx';
+import LegislativeDistrictLookupResult from '../utils/LegislativeDistrictLookupResult.js';
 
 
 let districtManager;
@@ -38,7 +38,7 @@ domReady(async function() {
 
     cache = Cache.loadFromLocalStorage();
 
-    
+
     mapManager = new MapManager();
 
     // Load all data
@@ -89,32 +89,25 @@ async function doWork(addresses) {
 
         // First check the cache for this address by ZIP
         const cached = cache.lookup(addr.zip);
-        
 
-        // If we have cached data, verify it against the geocoded location to ensure it's still valid
-        /*
-        if (cached) {
-            const cachedHouse = districtManager.getHouseDistrict(cached.house);
-            const cachedSenate = districtManager.getSenateDistrict(cached.senate);
-        } else {
-
-
-
-        // Might not want to do this each time.
-        cache.put(addr);
-        }*/
         // If cache is valid, use it. Otherwise, perform lookup and update cache.
         addr.house = cached ? cached.house : districtManager.findHouseDistrict(addr.location);
         addr.senate = cached ? cached.senate : districtManager.findSenateDistrict(addr.location);
-        if (cached) {
+        if (cached)
+        {
             let house = districtManager.getHouseDistrict(addr.house);
-            
-            if (house.isOutside([addr.location.lng(), addr.location.lat()])) {
+
+            if (house.isOutside([addr.location.lng(), addr.location.lat()]))
+            {
                 addr.house = districtManager.findHouseDistrict(addr.location);
-                addr.senate = districtManager.findSenateDistrict(addr.location);     
+                addr.senate = districtManager.findSenateDistrict(addr.location);
             }
         }
+
+
+
         cache.put(addr); // Update cache with new result, even if it was a hit, to ensure we have the latest geocoding info in case of variants
+
 
         // the cache says addr.zip is in a certain district but if we load that district and we ask if its inside itll say no 
     });
@@ -123,6 +116,7 @@ async function doWork(addresses) {
 
     cache.saveToLocalStorage();
     await cache.saveToDisk();
+    cache.open();
     // Save result in the cache
     // Result has house, senate, and zipcode
 

@@ -191,7 +191,7 @@ async function requestLibraries() {
 
 function load() {
     let foobar = new Promise((resolve, reject) => {
-        let script = createScriptElement("https://maps.googleapis.com/maps/api/js?key=AIzaSyCfWNi-jamfXgtp5iPBLn63XV_3u5RJK0c&");
+        let script = createScriptElement("https://maps.googleapis.com/maps/api/js?key=" + process.env.GOOGLE_MAPS_API_KEY);
         script.addEventListener('load', () => {
             resolve();
         });

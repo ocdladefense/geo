@@ -18,8 +18,8 @@ export default env => {
             prefix: ["GOOGLE_", "SF_"]
         },
         entry: {
-            app: path.resolve(__dirname, "./src/js/index.js"),
-            map: path.resolve(__dirname, "./src/js/map.js")
+            app: path.resolve(__dirname, "./src/client/index.js"),
+            map: path.resolve(__dirname, "./src/client/map.js")
         },
         optimization: {
             splitChunks: {
@@ -67,9 +67,9 @@ export default env => {
                     test: /\.(js|jsx)$/,
                     include: [
                         path.resolve(__dirname, 'node_modules/@ocdla'),
-                        path.resolve(__dirname, 'src/components'),
-                        path.resolve(__dirname, 'src/js')
+                        path.resolve(__dirname, 'src')
                     ],
+                    exclude: [path.resolve(__dirname, "src/pages"), path.resolve(__dirname, "src/sfdx")],
                     use: {
                         loader: "babel-loader",
                         options: {
