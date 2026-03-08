@@ -1,4 +1,4 @@
-import { vNode, View } from "@ocdla/view";
+// import { vNode, View } from "@ocdla/view";
 import Legal from "@ocdla/global-components/src/Legal";
 import Sitemap from "@ocdla/global-components/src/Sitemap";
 import SitemapCategory from "@ocdla/global-components/src/SitemapCategory";

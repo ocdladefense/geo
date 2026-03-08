@@ -7,6 +7,7 @@ import App from '../components/App.jsx';
 import Sites from '../components/ui/Sites.jsx';
 import LegislativeAction from '../components/legislative/LegislativeAction.jsx';
 import LegislativeActionHome from '../components/legislative/LegislativeActionHome.jsx';
+import Map from '../components/Map.jsx';
 
 
 
@@ -41,6 +42,9 @@ root.render(
         <ScrollToTop />
         <Routes>
             <Route path="/" element={<App />}>
+                <Route path="map">
+                    <Route index element={<Map />} />
+                </Route>
                 <Route path="sites">
                     <Route index element={<Sites />} />
                 </Route>
