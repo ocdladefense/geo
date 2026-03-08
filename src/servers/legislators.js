@@ -1,11 +1,12 @@
-import fs from 'fs';
-import path from "path";
+import { useCache } from './cache.js';
 import { fileURLToPath } from 'url';
 import xml2js from 'xml2js';
 import express from 'express';
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = process.cwd()
 const router = express.Router(); // Create a new router instance
+
+
 
 // "2026R1" began on Feb. 2, 2026.
 const LEGISLATIVE_SESSION_CODE = "2026R1";
@@ -15,11 +16,7 @@ const LEGISLATIVE_SESSION_CODE = "2026R1";
 router.get("/legislators/:type", async (req, res) => {
 
     // If the important json file already exists skip all this below and return the json file
-    let json;
-    let fileExists = fs.existsSync(`./dist/data/legislators.json`);
-
-
-    json = fileExists ? JSON.parse(fs.readFileSync(`./dist/data/legislators.json`, 'utf-8')) : await slowLoadData(LEGISLATIVE_SESSION_CODE);
+    let json = await useCache("legislators.json", () => slowLoadData(LEGISLATIVE_SESSION_CODE));
 
 
     let filtered = json.filter(leg => leg.Chamber == (req.params.type == "senators" ? "S" : "H"));
@@ -33,6 +30,18 @@ router.get("/legislators/:type", async (req, res) => {
 
 
 
+
+
+router.get("/legislators", async (req, res) => {
+
+    const legislators = await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
+    // With parser
+    var parser = new xml2js.Parser(/* options */);
+    let result = await parser.parseStringPromise(legislators);
+    res.json(result);
+});
+
+
 async function slowLoadData(session) {
 
 
@@ -41,11 +50,10 @@ async function slowLoadData(session) {
         trim: false,          // Do not trim whitespaces
         explicitCharkey: true // Force _ key for text nodes
     });
-    let legislators;
-    let fileExists = fs.existsSync('./dist/data/legislators.xml');
-    legislators = fileExists ? fs.readFileSync('./dist/data/legislators.xml', 'utf-8') : await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
+
+    let legislators = await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
     let result = await parser.parseStringPromise(legislators);
-    // res.json(result);
+
 
 
 
@@ -104,33 +112,11 @@ async function slowLoadData(session) {
 
 
     // At least get current session legislators.
-    let filtered = all.filter((leg) => leg.SessionKey.indexOf(session) !== -1);
-
-
-    // Save the fetched data to a local file for future use if it doesn't already exist
-    if (!fileExists)
-    {
-        fs.writeFileSync('./dist/data/legislators.json', JSON.stringify(filtered), 'utf-8');
-    }
-
-    if (!fileExists)
-    {
-        // Save the fetched data to a local file for future use
-        fs.writeFileSync('./dist/data/legislators.xml', legislators, 'utf-8');
-    }
-
-
-    return filtered;
+    return all.filter((leg) => leg.SessionKey.indexOf(session) !== -1);
 }
 
-router.get("/legislators", async (req, res) => {
 
-    const legislators = await fetch("https://api.oregonlegislature.gov/odata/ODataService.svc/Legislators").then(res => res.text());
-    // With parser
-    var parser = new xml2js.Parser(/* options */);
-    let result = await parser.parseStringPromise(legislators);
-    res.json(result);
-});
+
 
 
 

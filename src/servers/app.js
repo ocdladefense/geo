@@ -10,8 +10,11 @@ import cors from "cors";
 import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import Geocoder from '../utils/Geocoder.js';
-
+import cacheRoutes from './cache.js';
+import geocodeRoutes from './geocode.js';
+import authRoutes from './auth.js';
+import districtRoutes from './district.js';
+import legislatorsRoutes from './legislators.js';
 
 
 const app = express();
@@ -20,27 +23,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
+console.log(process.cwd());
 
-import authRoutes from './auth.js';
-import districtRoutes from './district.js';
-import legislatorsRoutes from './legislators.js';
 
+// Serve static files from the 'dist' directory
+app.use('/', cacheRoutes);
+app.use('/', geocodeRoutes);
 app.use('/', authRoutes);
 app.use('/', districtRoutes);
 app.use('/', legislatorsRoutes);
-
-
-
-console.log(process.cwd());
-
-let serverCache = {
-    hits: 0,
-    misses: 0,
-    results: [],
-    variants: {}
-};
-
-// Serve static files from the 'dist' directory
 app.use(cors());
 app.use(express.static('dist'));
 app.use(cookieParser());
@@ -48,33 +39,6 @@ app.use(express.json());
 
 
 
-
-// Cache API endpoints
-app.get("/api/cache", (req, res) => {
-    res.json(serverCache);
-});
-
-app.post("/api/cache", (req, res) => {
-    const { hits, misses, results, variants } = req.body;
-
-    if (hits !== undefined) serverCache.hits = hits;
-    if (misses !== undefined) serverCache.misses = misses;
-    if (results !== undefined) serverCache.results = results;
-    if (variants !== undefined) serverCache.variants = variants;
-
-    console.log(`Cache saved to server. Hits: ${serverCache.hits}, Misses: ${serverCache.misses}, Variants: ${JSON.stringify(serverCache.variants)}`);
-    res.json({ success: true, message: 'Cache saved' });
-});
-
-
-
-app.get("/geocode", async (req, res) => {
-
-    let address = req.query.address;
-    let coords = await Geocoder.geocodeAddress(address);
-    console.log(`Geocode for address "${address}":`, coords);
-    res.json(coords);
-});
 
 
 
