@@ -2,6 +2,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
+import InterpolateHtmlPlugin from "interpolate-html-plugin";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 
 export default env => {
-    console.log(env);
+    console.log("Hello World!", env);
 
     return {
         dotenv: {
@@ -125,6 +126,9 @@ export default env => {
                 chunks: ["map"],
                 inject: "body",
                 filename: "map.html"
+            }),
+            new InterpolateHtmlPlugin({
+                GOOGLE_TAG_ID: env.GOOGLE_TAG_ID
             }),
             new CopyPlugin({
                 patterns: [
