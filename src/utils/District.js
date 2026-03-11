@@ -108,6 +108,14 @@ export default class District {
         return this.coords.map(p => ({ lat: p[1], lng: p[0] }));
     }
 
+    // Find the center point of this district
+    findCenter() {
+        // Calculate center as the midpoint of the bounding box
+        const centerLat = (this.northPoint[0] + this.southPoint[0]) / 2;
+        const centerLng = (this.westPoint[1] + this.eastPoint[1]) / 2;
+        return { lat: centerLat, lng: centerLng };
+    }
+
 
     static getNorthernmostPoint(coords) {
 

@@ -12,6 +12,8 @@ import LegislativeDistrictLookupResult from '../utils/LegislativeDistrictLookupR
 let districtManager;
 let cache;
 let mapManager;
+let latestHouseDistrictsWithAddresses = [];
+let latestSenateDistrictsWithAddresses = [];
 
 
 
@@ -33,6 +35,13 @@ export default function Map() {
                     <textarea style={{ padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60">118 NW Jackson Ave. Corvallis, Oregon 97330</textarea>
 
                     <button style={{ padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Find district</button>
+
+                    <label htmlFor="district-select">Show info for:</label>
+                    <select id="district-select">
+                        <option value="">--Select a district--</option>
+                        <option value="house">House Districts</option>
+                        <option value="senate">Senate Districts</option>
+                    </select>
 
                     <div id="result"></div>
                 </form>
@@ -89,25 +98,60 @@ domReady(async function() {
 async function draw() {
 
     await mapManager.load();
-    console.log("Drawing districts on the map...");
-    // Outline all districts on the map
-    districtManager.houseDistricts.forEach(district => {
-        // console.log(`Drawing House District ${district.id} with ${district.coords.length} coordinates...`);
-        mapManager.draw(district.getCoordsAsObjects(), 'H' + district.id, false)
-    });
-    districtManager.senateDistricts.forEach(district => {
-        // console.log(`Drawing Senate District ${district.id} with ${district.coords.length} coordinates...`);
-        mapManager.draw(district.getCoordsAsObjects(), 'S' + district.id, false)
-    });
+    const select = document.getElementById('district-select');
+    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
+    if (select && !select.value)
+    {
+        select.value = 'house';
+    }
+    renderDistrictLayer(selectedType);
 }
 
 async function setupFormHandler() {
     // Set up form handler
     const form = document.getElementById('district-lookup');
     form.addEventListener('submit', onSubmit);
+
+    const select = document.getElementById('district-select');
+    if (select) {
+        select.addEventListener('change', onDistrictTypeChange);
+    }
 }
 
 
+function renderDistrictLayer(selectedType) {
+    // Clear existing polygons and labels before rendering new ones
+    mapManager.clearPolygons();
+    mapManager.clearLabels();
+
+    // Determine which districts to render based on selected type
+    const districts = selectedType === 'senate' ? districtManager.senateDistricts : districtManager.houseDistricts;
+    const prefix = selectedType === 'senate' ? 'S' : 'H';
+
+    // Render each district as a polygon with a label
+    districts.forEach(district => {
+        const key = prefix + district.id;
+        const contentCallback = selectedType === 'senate'
+            ? () => district.getSenateDistrictInfo()
+            : () => district.getHouseDistrictInfo();
+        mapManager.draw(district.getCoordsAsObjects(), key, false, contentCallback);
+        mapManager.drawDistrictLabel(district.findCenter(), `${prefix}${district.id}`, `${key}-label`);
+    });
+}
+
+
+async function onDistrictTypeChange(event) {
+    const selectedType = event.target.value === 'senate' ? 'senate' : 'house';
+    renderDistrictLayer(selectedType);
+
+    await displayTextResults(
+        latestHouseDistrictsWithAddresses,
+        latestSenateDistrictsWithAddresses,
+        mapManager,
+        districtManager,
+        selectedType
+    );
+}
 
 
 
@@ -126,12 +170,10 @@ async function doWork(addresses) {
         // If cache is valid, use it. Otherwise, perform lookup and update cache.
         addr.house = cached ? cached.house : districtManager.findHouseDistrict(addr.location);
         addr.senate = cached ? cached.senate : districtManager.findSenateDistrict(addr.location);
-        if (cached)
-        {
+        if (cached) {
             let house = districtManager.getHouseDistrict(addr.house);
 
-            if (house.isOutside([addr.location.lng(), addr.location.lat()]))
-            {
+            if (house.isOutside([addr.location.lng(), addr.location.lat()])) {
                 addr.house = districtManager.findHouseDistrict(addr.location);
                 addr.senate = districtManager.findSenateDistrict(addr.location);
             }
@@ -164,23 +206,20 @@ async function doWork(addresses) {
     let groupedByHouse = Object.groupBy(addresses, a => a.house);
     let groupedBySenate = Object.groupBy(addresses, a => a.senate);
 
-    for (let houseId in groupedByHouse)
-    {
+    for (let houseId in groupedByHouse) {
         let house = districtManager.getHouseDistrict(houseId);
         if (null == house) continue;
         house.addAddresses(groupedByHouse[houseId]);
     }
 
-    for (let senateId in groupedBySenate)
-    {
+    for (let senateId in groupedBySenate) {
         let senate = districtManager.getSenateDistrict(senateId);
         if (null == senate) continue;
         senate.addAddresses(groupedBySenate[senateId]);
     }
 
 
-    for (let houseId in groupedByHouse)
-    {
+    for (let houseId in groupedByHouse) {
         mapManager.shadePolygon('H' + houseId);
     }
 }
@@ -215,10 +254,21 @@ async function onSubmit(event) {
     await doWork(addresses);
 
     // Display text results.
-    const houseDistrictsWithAddresses = districtManager.getHouseDistrictsWithAddresses();
-    const senateDistrictsWithAddresses = districtManager.getSenateDistrictsWithAddresses();
+    latestHouseDistrictsWithAddresses = districtManager.getHouseDistrictsWithAddresses();
+    latestSenateDistrictsWithAddresses = districtManager.getSenateDistrictsWithAddresses();
 
-    displayTextResults(houseDistrictsWithAddresses, senateDistrictsWithAddresses);
+    const select = document.getElementById('district-select');
+    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
+    renderDistrictLayer(selectedType);
+
+    // Display text results for the selected district type
+    await displayTextResults(
+        latestHouseDistrictsWithAddresses,
+        latestSenateDistrictsWithAddresses,
+        mapManager,
+        districtManager,
+        selectedType
+    );
 
 }
 

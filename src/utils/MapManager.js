@@ -14,6 +14,9 @@ export default class MapManager {
     // Track current address markers on the map for cleanup
     currentMarkers = [];
 
+    // Track district number labels so they can persist independently of address markers.
+    currentLabels = new Map();
+
 
 
     constructor() { }
@@ -27,12 +30,18 @@ export default class MapManager {
     clearPolygons() {
         // Remove all polygons from the map and clear the tracking array
         this.currentPolygons.forEach(polygon => polygon.setMap(null));
+        this.currentPolygons.clear();
     }
 
     clearMarkers() {
         // Remove all markers from the map and clear the tracking array
         this.currentMarkers.forEach(marker => marker.setMap(null));
         this.currentMarkers = [];
+    }
+
+    clearLabels() {
+        this.currentLabels.forEach(label => label.setMap(null));
+        this.currentLabels.clear();
     }
 
 
@@ -47,6 +56,10 @@ export default class MapManager {
         this.currentMarkers.push(marker);
     }
 
+    addLabel(label, key) {
+        this.currentLabels.set(key, label);
+    }
+
     // Draw a polygon on the map
     draw(paths, key, shaded = false, content = null) {
         const polygon = new google.maps.Polygon({
@@ -55,7 +68,7 @@ export default class MapManager {
             fillOpacity: shaded ? 0.35 : 0.0, // Fill only if shaded
             strokeColor: '#2b6cb0',
             strokeOpacity: 1,
-            strokeWeight: 2,
+            strokeWeight: 4,
             clickable: !!content
         });
         polygon.setMap(this.map);
@@ -71,6 +84,21 @@ export default class MapManager {
             });
         }
     }
+
+    /*
+    onZoomChange(e) {
+        let zoomLevel = this.map.getZoom();
+        let listOfLabels;
+        let portlandPoint = [45.5051, -122.6750];
+        let aroundPortland = portlandPoint RADIUS 150;
+        let foobar = districtLabels.filter(label => label.position < aroundPortland);
+        let certainZoomLevel = 10;
+        if (zoomLevel > certainZoomLevel) {
+            foobar.forEach(label => label.opacity = 0);
+        } else {
+            foobar.forEach(label => label.opacity = 1);
+        }
+    }*/
 
     // Shade districts and make them clickable with info windows
     makePolygonClickable(id, clickable = true, contentCallback = null) {
@@ -125,11 +153,8 @@ export default class MapManager {
     resetPolygons() {
         this.currentPolygons.forEach(polygon => {
             polygon.setOptions({
-                fillOpacity: 0.0,
-                clickable: false
-            });
-            // Clear all click listeners
-            google.maps.event.clearListeners(polygon, 'click');
+                fillOpacity: 0.0 });
+                polygon.setMap(this.map);
         });
     }
 
@@ -144,9 +169,42 @@ export default class MapManager {
         this.addMarker(marker); // Track marker for cleanup
     }
 
+    // Draw a persistent district label at its center point.
+    drawDistrictLabel(center, text, key) {
+        const existingLabel = this.currentLabels.get(key);
+        if (existingLabel)
+        {
+            existingLabel.setPosition(center);
+            existingLabel.setMap(this.map);
+            return;
+        }
+
+        const label = new google.maps.Marker({
+            position: center,
+            map: this.map,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 0,
+                fillOpacity: 0,
+                strokeOpacity: 0
+            },
+            label: {
+                text: String(text),
+                color: '#1a1a1a',
+                fontSize: '18px',
+                fontWeight: '700'
+            },
+            clickable: false,
+            zIndex: 1000
+        });
+
+        this.addLabel(label, key);
+    }
+
     // Clear all polygons and markers from the map
     clearAll() {
         this.clearPolygons();
+        this.clearLabels();
         this.clearMarkers();
     }
 
@@ -174,7 +232,8 @@ async function initMap() {
     let map = new google.maps.Map(mapEl, {
         zoom: 7,
         center: { lat: 43.9336, lng: -120.5583 },
-        mapTypeId: 'roadmap'
+        mapTypeId: 'roadmap',
+        gestureHandling: 'greedy'
     });
 
 
@@ -191,7 +250,7 @@ async function requestLibraries() {
 
 function load() {
     let foobar = new Promise((resolve, reject) => {
-        let script = createScriptElement("https://maps.googleapis.com/maps/api/js?key=" + process.env.GOOGLE_MAPS_API_KEY);
+        let script = createScriptElement("https://maps.googleapis.com/maps/api/js?key=AIzaSyCfWNi-jamfXgtp5iPBLn63XV_3u5RJK0c&");
         script.addEventListener('load', () => {
             resolve();
         });

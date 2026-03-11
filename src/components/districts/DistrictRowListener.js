@@ -1,6 +1,6 @@
 export function attatchTableRowListeners(districts, districtType, mapManager) {
 // Add click listeners to table rows
-    document.querySelectorAll('#district-info table tbody tr').forEach((row, index) => {
+    document.querySelectorAll('#result table tbody tr').forEach((row, index) => {
         row.style.cursor = 'pointer';
         row.addEventListener('click', async () => {
             // Get the corresponding district for this row
@@ -13,7 +13,7 @@ export function attatchTableRowListeners(districts, districtType, mapManager) {
             const bounds = new google.maps.LatLngBounds();
             district.getCoordsAsObjects().forEach(coord => bounds.extend(coord));
             infoWindow.setPosition(bounds.getCenter());
-            infoWindow.open(mapManager.getMap());
+            infoWindow.open({ map: mapManager.getMap() });
         });
     });
 }
