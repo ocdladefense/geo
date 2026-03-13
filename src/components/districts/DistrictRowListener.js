@@ -1,12 +1,14 @@
 export function attatchTableRowListeners(districts, districtType, mapManager) {
-// Add click listeners to table rows
+    // Add click listeners only to the addresses cell (3rd column) of each row
     document.querySelectorAll('#result table tbody tr').forEach((row, index) => {
-        row.style.cursor = 'pointer';
-        row.addEventListener('click', async () => {
+        const addressesCell = row.querySelector('td.addresses-cell');
+        if (!addressesCell) return;
+        addressesCell.addEventListener('click', async () => {
             // Get the corresponding district for this row
             const district = districts[index];
             const methodName = districtType === 'house' ? 'getHouseDistrictInfo' : 'getSenateDistrictInfo';
             const infoContent = await district[methodName]();
+            mapManager.zoomToFeature(district);
             
             const infoWindow = new google.maps.InfoWindow({ content: infoContent });
             // Center on the district

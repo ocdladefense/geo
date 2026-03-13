@@ -1,4 +1,4 @@
-import { buildHouseTable, buildSenateTable } from './DistrictTable.js';
+import { buildTable } from './DistrictTable.js';
 import { attatchTableRowListeners } from './DistrictRowListener.js';
 
 
@@ -9,10 +9,9 @@ export async function displayTextResults(houseDistrictsWithAddresses, senateDist
         return;
     }
 
-    mapManager.resetPolygons();
+    mapManager.resetPolygon();
 
     if (selectedType === 'senate') {
-        resultDiv.innerHTML = buildSenateTable(senateDistrictsWithAddresses);
         senateDistrictsWithAddresses.forEach(district => {
             const polygonId = 'S' + district.id;
             mapManager.shadePolygon(polygonId);
@@ -22,11 +21,10 @@ export async function displayTextResults(houseDistrictsWithAddresses, senateDist
                 (event) => district.getSenateDistrictInfo(event.latLng, districtManager)
             );
         });
-        attatchTableRowListeners(senateDistrictsWithAddresses, 'senate', mapManager);
         return;
     }
 
-    resultDiv.innerHTML = buildHouseTable(houseDistrictsWithAddresses);
+    resultDiv.innerHTML = buildTable(houseDistrictsWithAddresses);
     houseDistrictsWithAddresses.forEach(district => {
         const polygonId = 'H' + district.id;
         mapManager.shadePolygon(polygonId);

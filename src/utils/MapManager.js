@@ -17,6 +17,8 @@ export default class MapManager {
     // Track district number labels so they can persist independently of address markers.
     currentLabels = new Map();
 
+    zoomListener = null; // Store the zoom listener reference for cleanup
+
 
 
     constructor() { }
@@ -40,7 +42,7 @@ export default class MapManager {
     }
 
     clearLabels() {
-        this.currentLabels.forEach(label => label.setMap(null));
+        this.currentLabels.forEach(({ marker }) => marker.setMap(null));
         this.currentLabels.clear();
     }
 
@@ -56,8 +58,11 @@ export default class MapManager {
         this.currentMarkers.push(marker);
     }
 
-    addLabel(label, key) {
-        this.currentLabels.set(key, label);
+    addLabel(label, key, minZoom = 0) {
+        this.currentLabels.set(key, {
+            marker: label,
+            minZoom
+        });
     }
 
     // Draw a polygon on the map
@@ -77,6 +82,7 @@ export default class MapManager {
         if (content)
         {
             polygon.addListener('click', async (event) => {
+                this.zoomToFeature(polygon);
                 const infoContent = await content(event);
                 const infoWindow = new google.maps.InfoWindow({ content: infoContent });
                 infoWindow.setPosition(event.latLng);
@@ -85,20 +91,74 @@ export default class MapManager {
         }
     }
 
-    /*
-    onZoomChange(e) {
-        let zoomLevel = this.map.getZoom();
-        let listOfLabels;
-        let portlandPoint = [45.5051, -122.6750];
-        let aroundPortland = portlandPoint RADIUS 150;
-        let foobar = districtLabels.filter(label => label.position < aroundPortland);
-        let certainZoomLevel = 10;
-        if (zoomLevel > certainZoomLevel) {
-            foobar.forEach(label => label.opacity = 0);
-        } else {
-            foobar.forEach(label => label.opacity = 1);
+    getLabelMinZoom(district) {
+        const districtSpan = district.getDistrictSize();
+
+        // For small districts, show labels at all zoom levels
+        if (districtSpan < 0.18) {
+            return 10;
         }
-    }*/
+
+        // For larger districts, we can show labels at a more zoomed-out level
+        if (districtSpan < 0.35) {
+            return 9;
+        }
+
+        return 0;
+    }
+
+    updateLabelVisibility() {
+        // Show or hide labels based on the current zoom level and their specified minimum zoom
+        const zoomLevel = this.map.getZoom() ?? 0;
+        this.currentLabels.forEach(({ marker, minZoom }) => {
+            marker.setVisible(zoomLevel >= minZoom);
+            if (zoomLevel >= 14) {
+                marker.setOptions({
+                    label: {
+                        text: "District " + marker.getLabel().text,
+                    }
+                });
+            } else if (zoomLevel >= 10) {
+                marker.setOptions({
+                    label: {
+                        text: marker.getLabel().text,
+                    }
+                });
+            }
+        });
+    }
+
+    bindZoomHandler() {
+        this.zoomListener = this.map.addListener('zoom_changed', () => {
+            this.updateLabelVisibility(); // Update label visibility on zoom change
+            console.log('Zoom level changed to:', this.map.getZoom());
+        });
+    }
+
+    // Zoom to fit a district object or a google.maps.Polygon.
+    zoomToFeature(feature) {
+        const bounds = new google.maps.LatLngBounds();
+
+        // If the feature is a polygon, we need to iterate through its paths to extend the bounds
+        if (typeof feature.getPaths === 'function') {
+            const paths = feature.getPaths();
+            for (let i = 0; i < paths.getLength(); i++) {
+                const path = paths.getAt(i);
+                for (let j = 0; j < path.getLength(); j++) {
+                    bounds.extend(path.getAt(j));
+                }
+            }
+        } 
+        // If the feature has a method to get its coordinates as LatLng objects, use that to extend the bounds
+        else if (typeof feature.getCoordsAsObjects === 'function') {
+            feature.getCoordsAsObjects().forEach(coord => bounds.extend(coord));
+        } else {
+            return;
+        }
+
+        this.map.fitBounds(bounds);
+        this.map.panTo(bounds.getCenter());
+    }
 
     // Shade districts and make them clickable with info windows
     makePolygonClickable(id, clickable = true, contentCallback = null) {
@@ -113,6 +173,7 @@ export default class MapManager {
             {
                 google.maps.event.clearListeners(polygon, 'click');
                 polygon.addListener('click', async (event) => {
+                    this.zoomToFeature(polygon);
                     const infoContent = await contentCallback(event);
                     const infoWindow = new google.maps.InfoWindow({ content: infoContent });
                     infoWindow.setPosition(event.latLng);
@@ -170,12 +231,14 @@ export default class MapManager {
     }
 
     // Draw a persistent district label at its center point.
-    drawDistrictLabel(center, text, key) {
+    drawDistrictLabel(center, text, key, minZoom = 0) {
         const existingLabel = this.currentLabels.get(key);
         if (existingLabel)
         {
-            existingLabel.setPosition(center);
-            existingLabel.setMap(this.map);
+            existingLabel.marker.setPosition(center);
+            existingLabel.marker.setMap(this.map);
+            existingLabel.minZoom = minZoom;
+            this.updateLabelVisibility();
             return;
         }
 
@@ -198,7 +261,8 @@ export default class MapManager {
             zIndex: 1000
         });
 
-        this.addLabel(label, key);
+        this.addLabel(label, key, minZoom);
+        this.updateLabelVisibility();
     }
 
     // Clear all polygons and markers from the map
@@ -212,6 +276,9 @@ export default class MapManager {
         this.map = await load().then(requestLibraries).then(initMap).catch(error => {
             console.error('Error loading Google Maps:', error);
         });
+
+        this.bindZoomHandler();
+        this.updateLabelVisibility();
     }
 }
 

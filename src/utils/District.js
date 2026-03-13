@@ -116,6 +116,15 @@ export default class District {
         return { lat: centerLat, lng: centerLng };
     }
 
+    getDistrictSize() {
+        // Calculate the approximate size of the district based on the distance between its bounding box corners
+        const latSpan = Math.abs(this.northPoint[0] - this.southPoint[0]);
+        const lngSpan = Math.abs(this.eastPoint[1] - this.westPoint[1]);
+        // Use the larger of the two spans as a simple measure of district size
+        const districtSpan = Math.max(latSpan, lngSpan);
+        
+        return districtSpan;
+    }
 
     static getNorthernmostPoint(coords) {
 
@@ -190,7 +199,7 @@ export default class District {
 
     // Build info window content for this district
     async getHouseDistrictInfo() {
-        const addressList = this.addresses.map(addr => `&bull; ${addr.address}`);
+        const addressList = this.addresses.map(addr => `${addr.address}`);
 
         return `
             <div><strong>House District ${this.id}</strong><br>
@@ -201,7 +210,7 @@ export default class District {
     }
 
     async getSenateDistrictInfo() {
-        const addressList = this.addresses.map(addr => `&bull; ${addr.address}`);
+        const addressList = this.addresses.map(addr => `${addr.address}`);
 
         return `
             <div><strong>Senate District ${this.id}</strong><br>

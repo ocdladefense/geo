@@ -135,7 +135,7 @@ function renderDistrictLayer(selectedType) {
             ? () => district.getSenateDistrictInfo()
             : () => district.getHouseDistrictInfo();
         mapManager.draw(district.getCoordsAsObjects(), key, false, contentCallback);
-        mapManager.drawDistrictLabel(district.findCenter(), `${prefix}${district.id}`, `${key}-label`);
+        mapManager.drawDistrictLabel(district.findCenter(), `${district.id}`, `${key}-label`, mapManager.getLabelMinZoom(district));
     });
 }
 
