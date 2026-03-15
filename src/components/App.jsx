@@ -60,12 +60,12 @@ export default function App() {
 
 
     return (
-        <div className="tablet:container mx-auto">
+        <div className="mx-auto">
             <Header loggedIn={isLoggedIn()} />
             <div className="mx-auto pt-4">
                 {!appReady ? <h1>Loading...</h1> : <Outlet context={{ client }} />}
             </div>
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 }

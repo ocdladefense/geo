@@ -37,10 +37,10 @@
     </style>
 </head>
 
-<body id="root" class="text-sm invisible">
+<body id="root" class="text-sm">
     <script>0</script>
 
-    <div id="app" style="padding: 0 4%;"></div>
+    <div id="app"></div>
 
     <noscript>
         <style>
@@ -51,20 +51,6 @@
         This page requires JavaScript.
     </noscript>
 
-    <script>
-        let domReady = (cb) =>
-        {
-            document.readyState === 'interactive' || document.readyState === 'complete'
-                ? cb()
-                : document.addEventListener('DOMContentLoaded', cb);
-        };
-
-        domReady(() =>
-        {
-            // Display body when DOM is loaded
-            document.body.style.visibility = 'visible';
-        });
-    </script>
     <script src="/sw.js"></script>
 </body>
 
