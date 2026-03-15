@@ -1,6 +1,6 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
-import Geocoder from '../utils/Geocoder.js';
+import Geocoder from '@ocdla/lib-geo/Geocoder.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = process.cwd()
 const router = express.Router();

@@ -32,11 +32,16 @@ _Note: A secret is necessary to utilitze GitHub's Deploy to GitHub Pages functio
 
 ## Using PM2
 Use <code>pm2</code> to run this server as a daemon.
+* <code>pm2 start app.js --name [app-name]</code> - Start a pm2 server instance.
+* <code>PORT=8081 sudo pm2 start [app-name]</code> - Start apm2 server instance on a specific port.
+* <code>sudo pm2 describe</code> - Describe information, including path to executable, for the specified app.
 * <code>sudo pm2 status</code> - Show the status of currently running node servers.
 * <code>sudo pm2 restart [app-name]</code> - Restart an app that has been updated.
 * <code>sudo pm2 logs [app-name]</code> - Show the stdout and stderr logs for the specified app.
 * <code>sudo pm2 startup</code> - Generate startup scripts.
 * <code>sudo pm2 save</code> - Save the state of the current pm2 apps so they are restored upon startup.
+* <code>sudo pm2 stop [app-name]</code> - Stop a pm2 server instance.
+* <code>sudo pm2 delete [app-name]</code> - Remove a pm2 server instance.
 
 ### Webpack server environment:
 1. Preview the base website using <code>npm run watch</code>.

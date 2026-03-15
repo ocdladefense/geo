@@ -1,11 +1,11 @@
-import MapManager from '../utils/MapManager.js';
-import DistrictManager from '../utils/DistrictManager.js';
-import Address from '../utils/Address.js';
-import Cache from '../utils/Cache.js';
-import { domReady } from '../utils/domReady.js';
+import MapManager from '@ocdla/lib-geo/MapManager.js';
+import DistrictManager from '@ocdla/lib-geo/DistrictManager.js';
+import Address from '@ocdla/lib-geo/Address.js';
+import Cache from '@ocdla/lib-geo/Cache.js';
+import { domReady } from '@ocdla/lib-utils/domReady.js';
 import { displayTextResults } from '../components/districts/DistrictToAddressesTable.js';
 import LookupTable from '../components/districts/LookupTable.jsx';
-import LegislativeDistrictLookupResult from '../utils/LegislativeDistrictLookupResult.js';
+import LegislativeDistrictLookupResult from '../components/districts/LegislativeDistrictLookupResult.js';
 
 
 let districtManager;
@@ -58,7 +58,8 @@ domReady(async function() {
 domReady(async function() {
     const select = document.getElementById('district-select');
     const selectedType = select?.value === 'senate' ? 'senate' : 'house';
-    if (select && !select.value) {
+    if (select && !select.value)
+    {
         select.value = 'house';
     }
     renderDistrictLayer(selectedType);
@@ -73,7 +74,8 @@ domReady(async function() {
     form.addEventListener('submit', onSubmit);
 
     const select = document.getElementById('district-select');
-    if (select) {
+    if (select)
+    {
         select.addEventListener('change', onDistrictTypeChange);
     }
 });
@@ -101,7 +103,8 @@ async function onDistrictTypeChange(event) {
     const selectedType = event.target.value === 'senate' ? 'senate' : 'house';
     renderDistrictLayer(selectedType);
 
-    if (latestHouseDistrictsWithAddresses.length > 0 || latestSenateDistrictsWithAddresses.length > 0) {
+    if (latestHouseDistrictsWithAddresses.length > 0 || latestSenateDistrictsWithAddresses.length > 0)
+    {
         await displayTextResults(
             latestHouseDistrictsWithAddresses,
             latestSenateDistrictsWithAddresses,
@@ -109,9 +112,11 @@ async function onDistrictTypeChange(event) {
             districtManager,
             selectedType
         );
-    } else {
+    } else
+    {
         const resultDiv = document.getElementById('result');
-        if (resultDiv) {
+        if (resultDiv)
+        {
             resultDiv.innerHTML = '';
         }
     }
@@ -134,10 +139,12 @@ async function doWork(addresses) {
         // If cache is valid, use it. Otherwise, perform lookup and update cache.
         addr.house = cached ? cached.house : districtManager.findHouseDistrict(addr.location);
         addr.senate = cached ? cached.senate : districtManager.findSenateDistrict(addr.location);
-        if (cached) {
+        if (cached)
+        {
             let house = districtManager.getHouseDistrict(addr.house);
 
-            if (house.isOutside([addr.location.lng(), addr.location.lat()])) {
+            if (house.isOutside([addr.location.lng(), addr.location.lat()]))
+            {
                 addr.house = districtManager.findHouseDistrict(addr.location);
                 addr.senate = districtManager.findSenateDistrict(addr.location);
             }
@@ -170,20 +177,23 @@ async function doWork(addresses) {
     let groupedByHouse = Object.groupBy(addresses, a => a.house);
     let groupedBySenate = Object.groupBy(addresses, a => a.senate);
 
-    for (let houseId in groupedByHouse) {
+    for (let houseId in groupedByHouse)
+    {
         let house = districtManager.getHouseDistrict(houseId);
         if (null == house) continue;
         house.addAddresses(groupedByHouse[houseId]);
     }
 
-    for (let senateId in groupedBySenate) {
+    for (let senateId in groupedBySenate)
+    {
         let senate = districtManager.getSenateDistrict(senateId);
         if (null == senate) continue;
         senate.addAddresses(groupedBySenate[senateId]);
     }
 
 
-    for (let houseId in groupedByHouse) {
+    for (let houseId in groupedByHouse)
+    {
         mapManager.shadePolygon('H' + houseId);
     }
 }

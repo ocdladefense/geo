@@ -1,4 +1,4 @@
-import { createScriptElement, injectScriptElement } from "./html.js";
+import { createScriptElement, injectScriptElement } from "@ocdla/lib-utils/html.js";
 
 
 
@@ -95,12 +95,14 @@ export default class MapManager {
         const districtSpan = district.getDistrictSize();
 
         // For small districts, show labels at all zoom levels
-        if (districtSpan < 0.18) {
+        if (districtSpan < 0.18)
+        {
             return 10;
         }
 
         // For larger districts, we can show labels at a more zoomed-out level
-        if (districtSpan < 0.35) {
+        if (districtSpan < 0.35)
+        {
             return 9;
         }
 
@@ -112,13 +114,15 @@ export default class MapManager {
         const zoomLevel = this.map.getZoom() ?? 0;
         this.currentLabels.forEach(({ marker, minZoom }) => {
             marker.setVisible(zoomLevel >= minZoom);
-            if (zoomLevel >= 14) {
+            if (zoomLevel >= 14)
+            {
                 marker.setOptions({
                     label: {
                         text: "District " + marker.getLabel().text,
                     }
                 });
-            } else if (zoomLevel >= 10) {
+            } else if (zoomLevel >= 10)
+            {
                 marker.setOptions({
                     label: {
                         text: marker.getLabel().text,
@@ -140,19 +144,24 @@ export default class MapManager {
         const bounds = new google.maps.LatLngBounds();
 
         // If the feature is a polygon, we need to iterate through its paths to extend the bounds
-        if (typeof feature.getPaths === 'function') {
+        if (typeof feature.getPaths === 'function')
+        {
             const paths = feature.getPaths();
-            for (let i = 0; i < paths.getLength(); i++) {
+            for (let i = 0; i < paths.getLength(); i++)
+            {
                 const path = paths.getAt(i);
-                for (let j = 0; j < path.getLength(); j++) {
+                for (let j = 0; j < path.getLength(); j++)
+                {
                     bounds.extend(path.getAt(j));
                 }
             }
-        } 
+        }
         // If the feature has a method to get its coordinates as LatLng objects, use that to extend the bounds
-        else if (typeof feature.getCoordsAsObjects === 'function') {
+        else if (typeof feature.getCoordsAsObjects === 'function')
+        {
             feature.getCoordsAsObjects().forEach(coord => bounds.extend(coord));
-        } else {
+        } else
+        {
             return;
         }
 
@@ -214,8 +223,9 @@ export default class MapManager {
     resetPolygons() {
         this.currentPolygons.forEach(polygon => {
             polygon.setOptions({
-                fillOpacity: 0.0 });
-                polygon.setMap(this.map);
+                fillOpacity: 0.0
+            });
+            polygon.setMap(this.map);
         });
     }
 

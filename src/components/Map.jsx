@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import MapManager from '../utils/MapManager.js';
-import DistrictManager from '../utils/DistrictManager.js';
-import Address from '../utils/Address.js';
-import Cache from '../utils/Cache.js';
-import { domReady } from '../utils/domReady.js';
+import MapManager from '@ocdla/lib-geo/MapManager.js';
+import DistrictManager from '@ocdla/lib-geo/DistrictManager.js';
+import Address from '@ocdla/lib-geo/Address.js';
+import Cache from '@ocdla/lib-geo/Cache.js';
+import { domReady } from '@ocdla/lib-utils/domReady.js';
 import { displayTextResults } from './districts/DistrictToAddressesTable.js';
 import LookupTable from './districts/LookupTable.jsx';
-import LegislativeDistrictLookupResult from '../utils/LegislativeDistrictLookupResult.js';
+import LegislativeDistrictLookupResult from './districts/LegislativeDistrictLookupResult.js';
 
 
 let districtManager;
@@ -51,19 +51,6 @@ export default function Map() {
         </>
     );
 }
-
-// This function is a workaround to load the Google Maps API using the new importLibrary method, which doesn't work with the standard callback approach. See https://developers.google.com/maps/documentation/javascript/load-maps-js-api#dynamic_library_import for more details.
-function foobar() {
-
-    (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })({
-        key: process.env.GOOGLE_MAPS_API_KEY,
-        v: "weekly",
-        // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
-        // Add other bootstrap parameters as needed, using camel case.
-    });
-
-}
-
 
 
 
@@ -113,7 +100,8 @@ async function setupFormHandler() {
     form.addEventListener('submit', onSubmit);
 
     const select = document.getElementById('district-select');
-    if (select) {
+    if (select)
+    {
         select.addEventListener('change', onDistrictTypeChange);
     }
 }
@@ -170,10 +158,12 @@ async function doWork(addresses) {
         // If cache is valid, use it. Otherwise, perform lookup and update cache.
         addr.house = cached ? cached.house : districtManager.findHouseDistrict(addr.location);
         addr.senate = cached ? cached.senate : districtManager.findSenateDistrict(addr.location);
-        if (cached) {
+        if (cached)
+        {
             let house = districtManager.getHouseDistrict(addr.house);
 
-            if (house.isOutside([addr.location.lng(), addr.location.lat()])) {
+            if (house.isOutside([addr.location.lng(), addr.location.lat()]))
+            {
                 addr.house = districtManager.findHouseDistrict(addr.location);
                 addr.senate = districtManager.findSenateDistrict(addr.location);
             }
@@ -206,20 +196,23 @@ async function doWork(addresses) {
     let groupedByHouse = Object.groupBy(addresses, a => a.house);
     let groupedBySenate = Object.groupBy(addresses, a => a.senate);
 
-    for (let houseId in groupedByHouse) {
+    for (let houseId in groupedByHouse)
+    {
         let house = districtManager.getHouseDistrict(houseId);
         if (null == house) continue;
         house.addAddresses(groupedByHouse[houseId]);
     }
 
-    for (let senateId in groupedBySenate) {
+    for (let senateId in groupedBySenate)
+    {
         let senate = districtManager.getSenateDistrict(senateId);
         if (null == senate) continue;
         senate.addAddresses(groupedBySenate[senateId]);
     }
 
 
-    for (let houseId in groupedByHouse) {
+    for (let houseId in groupedByHouse)
+    {
         mapManager.shadePolygon('H' + houseId);
     }
 }
@@ -315,3 +308,18 @@ async function onSubmitArchived(addresses) {
     let results = LegislativeDistrictLookupResult.from(addresses, houseDistrict, senateDistrict);
     resultDiv.appendChild(LookupTable(results));
 }
+
+
+
+// This function is a workaround to load the Google Maps API using the new importLibrary method, which doesn't work with the standard callback approach. See https://developers.google.com/maps/documentation/javascript/load-maps-js-api#dynamic_library_import for more details.
+function foobar() {
+
+    (g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })({
+        key: process.env.GOOGLE_MAPS_API_KEY,
+        v: "weekly",
+        // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+        // Add other bootstrap parameters as needed, using camel case.
+    });
+
+}
+

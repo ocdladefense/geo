@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { point } from "@turf/helpers";
 import { polygon } from "@turf/helpers";
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
-import District from '../utils/District.js';
+import District from '@ocdla/lib-geo/District.js';
 import express from 'express';
 
 
