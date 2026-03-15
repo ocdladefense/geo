@@ -58,10 +58,11 @@ export default class MapManager {
         this.currentMarkers.push(marker);
     }
 
-    addLabel(label, key, minZoom = 0) {
+    addLabel(label, key, minZoom = 0, baseText = '') {
         this.currentLabels.set(key, {
             marker: label,
-            minZoom
+            minZoom,
+            baseText
         });
     }
 
@@ -95,14 +96,12 @@ export default class MapManager {
         const districtSpan = district.getDistrictSize();
 
         // For small districts, show labels at all zoom levels
-        if (districtSpan < 0.18)
-        {
+        if (districtSpan < 0.18) {
             return 10;
         }
 
         // For larger districts, we can show labels at a more zoomed-out level
-        if (districtSpan < 0.35)
-        {
+        if (districtSpan < 0.35) {
             return 9;
         }
 
@@ -112,20 +111,18 @@ export default class MapManager {
     updateLabelVisibility() {
         // Show or hide labels based on the current zoom level and their specified minimum zoom
         const zoomLevel = this.map.getZoom() ?? 0;
-        this.currentLabels.forEach(({ marker, minZoom }) => {
+        this.currentLabels.forEach(({ marker, minZoom, baseText }) => {
             marker.setVisible(zoomLevel >= minZoom);
-            if (zoomLevel >= 14)
-            {
+
+            const labelText = zoomLevel >= 14 ? `District ${baseText}` : baseText;
+            const currentLabel = marker.getLabel();
+            const currentText = typeof currentLabel === 'string' ? currentLabel : currentLabel?.text;
+
+            if (currentText !== labelText) {
                 marker.setOptions({
                     label: {
-                        text: "District " + marker.getLabel().text,
-                    }
-                });
-            } else if (zoomLevel >= 10)
-            {
-                marker.setOptions({
-                    label: {
-                        text: marker.getLabel().text,
+                        ...(typeof currentLabel === 'object' && currentLabel ? currentLabel : {}),
+                        text: labelText,
                     }
                 });
             }
@@ -144,24 +141,19 @@ export default class MapManager {
         const bounds = new google.maps.LatLngBounds();
 
         // If the feature is a polygon, we need to iterate through its paths to extend the bounds
-        if (typeof feature.getPaths === 'function')
-        {
+        if (typeof feature.getPaths === 'function') {
             const paths = feature.getPaths();
-            for (let i = 0; i < paths.getLength(); i++)
-            {
+            for (let i = 0; i < paths.getLength(); i++) {
                 const path = paths.getAt(i);
-                for (let j = 0; j < path.getLength(); j++)
-                {
+                for (let j = 0; j < path.getLength(); j++) {
                     bounds.extend(path.getAt(j));
                 }
             }
-        }
+        } 
         // If the feature has a method to get its coordinates as LatLng objects, use that to extend the bounds
-        else if (typeof feature.getCoordsAsObjects === 'function')
-        {
+        else if (typeof feature.getCoordsAsObjects === 'function') {
             feature.getCoordsAsObjects().forEach(coord => bounds.extend(coord));
-        } else
-        {
+        } else {
             return;
         }
 
@@ -223,10 +215,15 @@ export default class MapManager {
     resetPolygons() {
         this.currentPolygons.forEach(polygon => {
             polygon.setOptions({
-                fillOpacity: 0.0
-            });
-            polygon.setMap(this.map);
+                fillOpacity: 0.0 });
+                polygon.setMap(this.map);
         });
+    }
+
+    // Reset the map zoom and center to the default view
+    resetZoom() {
+        this.map.setZoom(7);
+        this.map.setCenter({ lat: 43.9336, lng: -120.5583 });
     }
 
     // Draw markers for all addresses within the given districts
@@ -248,6 +245,7 @@ export default class MapManager {
             existingLabel.marker.setPosition(center);
             existingLabel.marker.setMap(this.map);
             existingLabel.minZoom = minZoom;
+            existingLabel.baseText = String(text);
             this.updateLabelVisibility();
             return;
         }
@@ -271,7 +269,7 @@ export default class MapManager {
             zIndex: 1000
         });
 
-        this.addLabel(label, key, minZoom);
+        this.addLabel(label, key, minZoom, String(text));
         this.updateLabelVisibility();
     }
 

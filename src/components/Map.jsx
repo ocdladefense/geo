@@ -35,14 +35,14 @@ export default function Map() {
                     <textarea style={{ padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60">118 NW Jackson Ave. Corvallis, Oregon 97330</textarea>
 
                     <button style={{ padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Find district</button>
-
+                    
                     <label htmlFor="district-select">Show info for:</label>
                     <select id="district-select">
                         <option value="">--Select a district--</option>
                         <option value="house">House Districts</option>
                         <option value="senate">Senate Districts</option>
                     </select>
-
+                    <button style={{ padding: '10px', fontSize: 'larger' }} onClick={() => mapManager.resetZoom()} id="reset-zoom-button" type="button">Reset Zoom</button>
                     <div id="result"></div>
                 </form>
             </div>
