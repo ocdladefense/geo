@@ -28,8 +28,8 @@ export default function Map() {
     }, []); // Run once on component mount
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <div id="form-container" style={{ width: '20%', padding: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
+            <div id="form-container" style={{ width: '20%', padding: '10px', paddingTop: '80px', boxSizing: 'border-box' }}>
                 <form id="district-lookup" method="post">
                     <label style={{ fontSize: 'larger' }} htmlFor="address">Enter Address:</label>
                     <textarea style={{ padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60">118 NW Jackson Ave. Corvallis, Oregon 97330</textarea>
@@ -47,7 +47,7 @@ export default function Map() {
                 </form>
             </div>
 
-            <div id="map" style={{ height: '90vh', width: '75%' }}></div>
+            <div id="map" style={{ width: '75%' }}></div>
         </div>
     );
 }
