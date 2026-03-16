@@ -1,13 +1,17 @@
 import useModal from './hooks/useModal.js';
 import Modal from './ui/Modal.jsx';
+import { useEffect } from 'react';
 
 
-
-export default function AddressSearch({ mapManager }) {
+export default function AddressSearch({ mapManager, onSubmit }) {
 
 
 
     const { isOpen, modalContent, openModal, closeModal } = useModal();
+
+    useEffect(function() {
+        setupFormHandler();
+    }, []); // Run once on component mount
 
     const handleOpenCustomModal = () => {
         openModal(
@@ -20,7 +24,7 @@ export default function AddressSearch({ mapManager }) {
 
     return (
 
-        <form id="district-lookup" method="post">
+        <form id="district-lookup" method="post" onSubmit={onSubmit}>
 
             <label for="district-select">Features</label><br />
             <select id="district-select" className="mb-4">
@@ -36,14 +40,59 @@ export default function AddressSearch({ mapManager }) {
 
             <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
 
-            <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Reset zoom</button>
-            <label htmlFor="order-by-district" style={{ fontSize: 'larger' }}>Order by district</label>
-            <input type="checkbox" id="order-by-district" name="order-by-district" style={{ marginLeft: '10px' }} />
+            <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="button">Reset zoom</button>
+
 
             <Modal isOpen={isOpen} content={modalContent} onClose={closeModal} />
 
-            <div id="result"></div>
+
         </form>
 
+    );
+}
+
+
+
+
+
+
+async function setupFormHandler() {
+    // Set up form handler
+
+
+    const select = document.getElementById('district-select');
+    select.addEventListener('change', onDistrictTypeChange);
+
+    const orderCheckbox = document.getElementById('order-by-district');
+    orderCheckbox.addEventListener('change', onOrderByDistrictChange);
+
+}
+
+
+
+async function onDistrictTypeChange(event) {
+    const selectedType = event.target.value === 'senate' ? 'senate' : 'house';
+    renderDistrictLayer(selectedType);
+
+    await displayTextResults(
+        latestHouseDistrictsWithAddresses,
+        latestSenateDistrictsWithAddresses,
+        latestAddresses,
+        mapManager,
+        districtManager,
+        selectedType
+    );
+}
+
+async function onOrderByDistrictChange() {
+    const select = document.getElementById('district-select');
+    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
+    await displayTextResults(
+        latestHouseDistrictsWithAddresses,
+        latestSenateDistrictsWithAddresses,
+        latestAddresses,
+        mapManager,
+        districtManager,
+        selectedType
     );
 }

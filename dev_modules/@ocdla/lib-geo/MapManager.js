@@ -66,6 +66,27 @@ export default class MapManager {
         });
     }
 
+
+
+    renderDistrictLayer(selectedType, districts) {
+        // Clear existing polygons and labels before rendering new ones
+        this.clearPolygons();
+        this.clearLabels();
+
+        // Determine which districts to render based on selected type
+        const prefix = selectedType === 'senate' ? 'S' : 'H';
+
+        // Render each district as a polygon with a label
+        districts.forEach(district => {
+            const key = prefix + district.id;
+            const contentCallback = selectedType === 'senate'
+                ? () => district.getSenateDistrictInfo()
+                : () => district.getHouseDistrictInfo();
+            this.draw(district.getCoordsAsObjects(), key, false, contentCallback);
+            this.drawDistrictLabel(district.findCenter(), `${district.id}`, `${key}-label`, this.getLabelMinZoom(district));
+        });
+    }
+
     // Draw a polygon on the map
     draw(paths, key, shaded = false, content = null) {
         const polygon = new google.maps.Polygon({
@@ -322,6 +343,19 @@ async function initMap() {
         gestureHandling: 'greedy',
         mapTypeControl: false
     });
+    let div = document.createElement("div");
+    div.addEventListener("click", () => { window.scrollTo(0, 0); });
+    div.style.backgroundColor = "white";
+    div.style.padding = "5px";
+    div.style.borderRadius = "3px";
+    div.style.cursor = "pointer";
+    div.style.zIndex = "5";
+    div.style.fontSize = "12px";
+    div.style.marginBottom = "10px";
+    div.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.3)";
+    div.innerHTML = "<strong>Oregon Legislative Districts</strong><br>Data from the Oregon Secretary of State's Office";
+    map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(div);
+    // map.controls[google.maps.ControlPosition.TOP_RIGHT].push(document.createElement("div"));
 
 
     google.maps.event.addDomListener(window, "resize", function() {
