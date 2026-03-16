@@ -14,44 +14,29 @@ export async function displayTextResults(houseDistrictsWithAddresses, senateDist
     // Check if the "Order by District" checkbox is checked
     const orderByDistrict = document.getElementById('order-by-district')?.checked ?? false;
 
-    if (selectedType === 'senate') {
-        senateDistrictsWithAddresses.forEach(district => {
-            const polygonId = 'S' + district.id;
-            mapManager.shadePolygon(polygonId);
-            mapManager.makePolygonClickable(
-                polygonId,
-                true,
-                (event) => district.getSenateDistrictInfo(event.latLng, districtManager)
-            );
-        });
-        return;
+    const districtsWithAddresses = selectedType === 'senate'
+        ? senateDistrictsWithAddresses
+        : houseDistrictsWithAddresses;
+    const polygonPrefix = selectedType === 'senate' ? 'S' : 'H';
+    const districtInfoGetter = selectedType === 'senate'
+        ? (district, event) => district.getSenateDistrictInfo(event.latLng, districtManager)
+        : (district, event) => district.getHouseDistrictInfo(event.latLng, districtManager);
+
+    if (orderByDistrict) {
+        resultDiv.innerHTML = buildTable(districtsWithAddresses, selectedType);
+        attatchTableRowListeners(districtsWithAddresses, selectedType, mapManager);
+    } else {
+        resultDiv.innerHTML = buildTableByAddress(addresses);
+        attatchTableRowListenersByAddress(addresses, selectedType, districtManager, mapManager);
     }
 
-    // If ordering by district, build the table grouped by house district. Otherwise, build it ordered by address.
-    if (orderByDistrict) {
-        resultDiv.innerHTML = buildTable(houseDistrictsWithAddresses);
-        houseDistrictsWithAddresses.forEach(district => {
-            const polygonId = 'H' + district.id;
-            mapManager.shadePolygon(polygonId);
-            mapManager.makePolygonClickable(
-                polygonId,
-                true,
-                (event) => district.getHouseDistrictInfo(event.latLng, districtManager)
-            );
-        });
-        attatchTableRowListeners(houseDistrictsWithAddresses, 'house', mapManager);
-    } else {
-        // Build table ordered by address
-        resultDiv.innerHTML = buildTableByAddress(addresses);
-        houseDistrictsWithAddresses.forEach(district => {
-            const polygonId = 'H' + district.id;
-            mapManager.shadePolygon(polygonId);
-            mapManager.makePolygonClickable(
-                polygonId,
-                true,
-                (event) => district.getHouseDistrictInfo(event.latLng, districtManager)
-            );
-        });
-        attatchTableRowListenersByAddress(addresses, 'house', districtManager, mapManager);
-    }
+    districtsWithAddresses.forEach(district => {
+        const polygonId = polygonPrefix + district.id;
+        mapManager.shadePolygon(polygonId);
+        mapManager.makePolygonClickable(
+            polygonId,
+            true,
+            (event) => districtInfoGetter(district, event)
+        );
+    });
 }

@@ -32,12 +32,20 @@ export function buildTableByAddress(addresses) {
     return tableWrapper(rows);
 }
 
-// Build table HTML grouped by house district
-export function buildTable(houseDistrictsWithAddresses) {
-    const rows = houseDistrictsWithAddresses.map((district, i) => {
-        // Extract unique senate districts from the addresses in this house district
-        const senateIds = [...new Set(district.addresses.map(a => a.senate))].filter(Boolean);
-        const senateText = senateIds.map(id => `Senate District ${id}`).join(', ');
+// Build table HTML ordered by district (one row per district, with all addresses in that district listed)
+export function buildTable(districtsWithAddresses, districtType = 'house') {
+    const rows = districtsWithAddresses.map((district, i) => {
+        // Get the related district type (e.g. if this is a house district, the related type is senate)
+        const relatedDistrictType = districtType === 'senate' ? 'house' : 'senate';
+        // Get unique related district IDs from the addresses in this district
+        const relatedDistrictIds = [
+            ...new Set(district.addresses.map(address => address[relatedDistrictType]))
+        ].filter(Boolean);
+        // Build text like "House District 12, House District 15" for the related districts
+        const relatedDistrictText = relatedDistrictIds
+            .map(id => `${relatedDistrictType === 'house' ? 'House' : 'Senate'} District ${id}`)
+            .join(', ');
+        // Build HTML for the addresses in this district
         const addressesHTML = district.addresses.map(addr => `<div>${addr.address}</div>`).join('');
         return `
             <tr>
@@ -46,8 +54,8 @@ export function buildTable(houseDistrictsWithAddresses) {
                     ${addressesHTML}<br>
                 </td>       
                 <td style="border: 1px solid #ccc; padding: 8px;">
-                    <strong>House District ${district.id}</strong>
-                    <strong>${senateText ? `<br><span>${senateText}</span>` : ''}</strong>
+                    <strong>${districtType === 'senate' ? 'Senate' : 'House'} District ${district.id}</strong>
+                    <strong>${relatedDistrictText ? `<br><span>${relatedDistrictText}</span>` : ''}</strong>
                 </td>
             </tr>
         `;
