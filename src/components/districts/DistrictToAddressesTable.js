@@ -5,7 +5,8 @@ import { attatchTableRowListeners, attatchTableRowListenersByAddress } from './D
 // Display text results for both house and senate districts 
 export async function displayTextResults(houseDistrictsWithAddresses, senateDistrictsWithAddresses, addresses, mapManager, districtManager, selectedType) {
     const resultDiv = document.getElementById('result');
-    if (!resultDiv) {
+    if (!resultDiv)
+    {
         return;
     }
 
@@ -22,10 +23,12 @@ export async function displayTextResults(houseDistrictsWithAddresses, senateDist
         ? (district, event) => district.getSenateDistrictInfo(event.latLng, districtManager)
         : (district, event) => district.getHouseDistrictInfo(event.latLng, districtManager);
 
-    if (orderByDistrict) {
+    if (orderByDistrict)
+    {
         resultDiv.innerHTML = buildTable(districtsWithAddresses, selectedType);
         attatchTableRowListeners(districtsWithAddresses, selectedType, mapManager);
-    } else {
+    } else
+    {
         resultDiv.innerHTML = buildTableByAddress(addresses);
         attatchTableRowListenersByAddress(addresses, selectedType, districtManager, mapManager);
     }
@@ -40,3 +43,5 @@ export async function displayTextResults(houseDistrictsWithAddresses, senateDist
         );
     });
 }
+
+

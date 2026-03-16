@@ -4,7 +4,7 @@ import DistrictManager from '@ocdla/lib-geo/DistrictManager.js';
 import Address from '@ocdla/lib-geo/Address.js';
 import Cache from '@ocdla/lib-geo/Cache.js';
 import { domReady } from '@ocdla/lib-utils/domReady.js';
-import { displayTextResults } from './districts/DistrictToAddressesTable.js';
+import ResultsTable from './districts/ResultsTable.jsx';
 // import LookupTable from './districts/LookupTable.jsx';
 // import LegislativeDistrictLookupResult from './districts/LegislativeDistrictLookupResult.js';
 import AddressSearch from './AddressSearch.jsx';
@@ -14,9 +14,7 @@ import { processAddresses } from '@ocdla/lib-geo/AddressProcessor.js';
 let districtManager;
 let cache;
 let mapManager;
-let latestHouseDistrictsWithAddresses = [];
-let latestSenateDistrictsWithAddresses = [];
-let latestAddresses = [];
+
 
 
 
@@ -33,9 +31,10 @@ export default function Map() {
     return (
         <div style={{ position: 'relative', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
             <div id="form-container" className="block w-[100%] tablet:w-[20%] tablet:absolute" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", top: 0, left: 0, padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '80px', borderRadius: '5px' }}>
-                <AddressSearch mapManager={mapManager} onSubmit={onSubmit} />
+                <AddressSearch mapManager={mapManager} onSubmit={onSubmit} onMapReset={() => mapManager.resetZoom()} />
 
-                <Results mapManager={mapManager} />
+                <div id="result"></div>
+                {/* <Results mapManager={mapManager} /> */}
             </div>
             <div id="map" style={{ flex: 1, width: '100%', height: '100%' }}></div>
 
@@ -92,13 +91,6 @@ async function draw() {
 
 
 
-
-
-
-
-
-
-
 async function onSubmit(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -123,7 +115,7 @@ async function onSubmit(event) {
 
 
     // Process the addresses, geocoding and finding districts, with caching.
-    let addresses = await processAddresses(input, addr => mapManager.drawMarker(addr));
+    let addresses = await processAddresses(districtManager, input, addr => mapManager.drawMarker(addr));
 
 
 
@@ -150,24 +142,72 @@ async function onSubmit(event) {
         mapManager.shadePolygon('H' + houseId);
     }
 
-    // Display text results.
-    latestHouseDistrictsWithAddresses = districtManager.getHouseDistrictsWithAddresses();
-    latestSenateDistrictsWithAddresses = districtManager.getSenateDistrictsWithAddresses();
-    latestAddresses = addresses.slice();
 
-    const select = document.getElementById('district-select');
-    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
-    mapManager.renderDistrictLayer(selectedType);
 
-    // Display text results for the selected district type
-    await displayTextResults(
-        latestHouseDistrictsWithAddresses,
-        latestSenateDistrictsWithAddresses,
-        latestAddresses,
-        mapManager,
-        districtManager,
-        selectedType
-    );
+
+
+    // Check if the "Order by District" checkbox is checked
+    const orderByDistrict = document.getElementById('order-by-district')?.checked ?? false;
+
+
+
+    // Base case.
+    let tableElement = ResultsTable(addresses);
+    resultDiv.appendChild(tableElement);
+    tableElement.addEventListener('click', (e) => {
+        let target = e.target;
+        if (target.tagName === 'A')
+        {
+            const lat = parseFloat(target.dataset.lat);
+            const lng = parseFloat(target.dataset.lng);
+            const obj = { lat, lng };
+            const house = target.dataset.house;
+            const senate = target.dataset.senate;
+            // This function, below, doesn't exist or doesn't do anything.
+            // We need to pan to the location.
+            // And we need to zoom to an "appropriate" level, which is tentatively zoom level 10.
+            // mapManager.zoomToFeature({ lat, lng });
+
+            // #1 - Pan and zoom - DEFINITELY WANT THIS.
+            // #2 - Highlight the district. - DEFINITELY WANT THIS.
+            // #3 - Fit the district to the screen.
+            // #4 - Bonus: Show a popup with the address and district info.
+
+            let houseLabel = "H" + house;
+            let senateLabel = "S" + senate;
+            mapManager.shadePolygon(houseLabel);
+            mapManager.shadePolygon(senateLabel);
+            mapManager.panTo(obj);
+        }
+    });
+
+
+
+    /*
+        let latestHouseDistrictsWithAddresses = [];
+        let latestSenateDistrictsWithAddresses = [];
+        let latestAddresses = [];
+    
+    
+        // Display text results.
+        latestHouseDistrictsWithAddresses = districtManager.getHouseDistrictsWithAddresses();
+        latestSenateDistrictsWithAddresses = districtManager.getSenateDistrictsWithAddresses();
+        latestAddresses = addresses.slice();
+    
+        const select = document.getElementById('district-select');
+        const selectedType = select?.value === 'senate' ? 'senate' : 'house';
+        mapManager.renderDistrictLayer(selectedType);
+    
+        // Display text results for the selected district type
+        await displayTextResults(
+            latestHouseDistrictsWithAddresses,
+            latestSenateDistrictsWithAddresses,
+            latestAddresses,
+            mapManager,
+            districtManager,
+            selectedType
+        );
+        */
 
 }
 

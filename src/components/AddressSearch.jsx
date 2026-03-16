@@ -3,19 +3,19 @@ import Modal from './ui/Modal.jsx';
 import { useEffect } from 'react';
 
 
-export default function AddressSearch({ mapManager, onSubmit }) {
+export default function AddressSearch({ mapManager, onSubmit, onMapReset }) {
 
 
 
     const { isOpen, modalContent, openModal, closeModal } = useModal();
 
     useEffect(function() {
-        setupFormHandler();
+        // setupFormHandler();
     }, []); // Run once on component mount
 
     const handleOpenCustomModal = () => {
         openModal(
-            <div >
+            <div>
                 <h2 className="text-2xl font-semibold mb-4">Modal</h2>
                 <a onClick={closeModal} className="text-blue-500 hover:underline cursor-pointer">Close</a>
             </div>
@@ -40,7 +40,7 @@ export default function AddressSearch({ mapManager, onSubmit }) {
 
             <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
 
-            <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="button">Reset zoom</button>
+            <button onClick={onMapReset} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="button">Reset zoom</button>
 
 
             <Modal isOpen={isOpen} content={modalContent} onClose={closeModal} />

@@ -113,6 +113,11 @@ export default class MapManager {
         }
     }
 
+    panTo(location) {
+        this.map.panTo(location);
+        this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
+    }
+
     getLabelMinZoom(district) {
         const districtSpan = district.getDistrictSize();
 
