@@ -4,12 +4,10 @@ import DistrictManager from '@ocdla/lib-geo/DistrictManager.js';
 import Address from '@ocdla/lib-geo/Address.js';
 import Cache from '@ocdla/lib-geo/Cache.js';
 import { domReady } from '@ocdla/lib-utils/domReady.js';
-import useModal from './hooks/useModal.js';
-import Modal from './ui/Modal.jsx';
 import { displayTextResults } from './districts/DistrictToAddressesTable.js';
 import LookupTable from './districts/LookupTable.jsx';
 import LegislativeDistrictLookupResult from './districts/LegislativeDistrictLookupResult.js';
-
+import AddressSearch from './AddressSearch.jsx';
 
 let districtManager;
 let cache;
@@ -23,18 +21,6 @@ let latestAddresses = [];
 export default function Map() {
 
 
-    const { isOpen, modalContent, openModal, closeModal } = useModal();
-
-    const handleOpenCustomModal = () => {
-        openModal(
-            <div >
-                <h2 className="text-2xl font-semibold mb-4">Modal</h2>
-                <a onClick={closeModal} className="text-blue-500 hover:underline cursor-pointer">Close</a>
-            </div>
-        );
-    };
-
-
     useEffect(function() {
         async function initialize() {
             await draw();
@@ -44,36 +30,12 @@ export default function Map() {
     }, []); // Run once on component mount
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
-            <div id="form-container" style={{ width: '20%', padding: '10px', paddingTop: '80px', boxSizing: 'border-box' }}>
-                <form id="district-lookup" method="post">
-
-                    <label for="district-select">Features</label><br />
-                    <select id="district-select" className="mb-4">
-                        <option value="">--Select feature--</option>
-                        <option value="house">House Districts</option>
-                        <option value="senate">Senate Districts</option>
-                    </select>
-
-                    <a onClick={handleOpenCustomModal}>Modal</a>
-
-                    <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
-                    <textarea type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
-
-                    <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
-
-                    <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Reset zoom</button>
-                    <label htmlFor="order-by-district" style={{ fontSize: 'larger' }}>Order by district</label>
-                    <input type="checkbox" id="order-by-district" name="order-by-district" style={{ marginLeft: '10px' }} />
-
-                    <Modal isOpen={isOpen} content={modalContent} onClose={closeModal} />
-
-                    <div id="result"></div>
-                </form>
+        <div style={{ position: 'relative', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
+            <div id="form-container" className="block w-[100%] tablet:w-[20%] tablet:absolute" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", top: 0, left: 0, padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '80px', borderRadius: '5px' }}>
+                <AddressSearch mapManager={mapManager} />
             </div>
-
-            <div id="map" style={{ flex: 1, width: '79%', height: '100%' }}></div>
-        </div>
+            <div id="map" style={{ flex: 1, width: '100%', height: '100%' }}></div>
+        </div >
     );
 }
 
