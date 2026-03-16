@@ -13,6 +13,7 @@ let cache;
 let mapManager;
 let latestHouseDistrictsWithAddresses = [];
 let latestSenateDistrictsWithAddresses = [];
+let latestAddresses = [];
 
 
 // This function is a workaround to load the Google Maps API using the new importLibrary method, which doesn't work with the standard callback approach. See https://developers.google.com/maps/documentation/javascript/load-maps-js-api#dynamic_library_import for more details.
@@ -74,10 +75,11 @@ domReady(async function() {
     form.addEventListener('submit', onSubmit);
 
     const select = document.getElementById('district-select');
-    if (select)
-    {
-        select.addEventListener('change', onDistrictTypeChange);
-    }
+    select.addEventListener('change', onDistrictTypeChange);
+
+
+    const orderCheckbox = document.getElementById('order-by-district');
+    orderCheckbox.addEventListener('change', onOrderByDistrictChange);
 });
 
 
@@ -108,6 +110,7 @@ async function onDistrictTypeChange(event) {
         await displayTextResults(
             latestHouseDistrictsWithAddresses,
             latestSenateDistrictsWithAddresses,
+            latestAddresses,
             mapManager,
             districtManager,
             selectedType
@@ -120,6 +123,19 @@ async function onDistrictTypeChange(event) {
             resultDiv.innerHTML = '';
         }
     }
+}
+
+async function onOrderByDistrictChange() {
+    const select = document.getElementById('district-select');
+    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
+    await displayTextResults(
+        latestHouseDistrictsWithAddresses,
+        latestSenateDistrictsWithAddresses,
+        latestAddresses,
+        mapManager,
+        districtManager,
+        selectedType
+    );
 }
 
 
@@ -230,6 +246,7 @@ async function onSubmit(event) {
     // Display text results.
     latestHouseDistrictsWithAddresses = districtManager.getHouseDistrictsWithAddresses();
     latestSenateDistrictsWithAddresses = districtManager.getSenateDistrictsWithAddresses();
+    latestAddresses = addresses.slice();
 
     // Determine which type of district to display based on current selection
     const select = document.getElementById('district-select');
@@ -240,6 +257,7 @@ async function onSubmit(event) {
     await displayTextResults(
         latestHouseDistrictsWithAddresses,
         latestSenateDistrictsWithAddresses,
+        latestAddresses,
         mapManager,
         districtManager,
         selectedType

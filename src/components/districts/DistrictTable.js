@@ -15,7 +15,24 @@ function tableWrapper(rows) {
     `;
 }
 
-// Build table HTML for house districts, showing associated senate districts derived from addresses
+// Build table HTML ordered by input (one row per address)
+export function buildTableByAddress(addresses) {
+    const rows = addresses.map((addr, i) => `
+        <tr>
+            <td style="border: 1px solid #ccc; padding: 8px;">${i + 1}</td>
+            <td class="addresses-cell" style="border: 1px solid #ccc; padding: 8px; cursor: pointer;">
+                <div>${addr.address}</div>
+            </td>
+            <td style="border: 1px solid #ccc; padding: 8px;">
+                ${addr.house ? `<div>House District ${addr.house}</div>` : ''}
+                ${addr.senate ? `<div>Senate District ${addr.senate}</div>` : ''}
+            </td>
+        </tr>
+    `).join('');
+    return tableWrapper(rows);
+}
+
+// Build table HTML grouped by house district
 export function buildTable(houseDistrictsWithAddresses) {
     const rows = houseDistrictsWithAddresses.map((district, i) => {
         // Extract unique senate districts from the addresses in this house district

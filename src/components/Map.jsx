@@ -14,6 +14,7 @@ let cache;
 let mapManager;
 let latestHouseDistrictsWithAddresses = [];
 let latestSenateDistrictsWithAddresses = [];
+let latestAddresses = [];
 
 
 
@@ -40,14 +41,15 @@ export default function Map() {
                     </select>
 
                     <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
-                    <input type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
+                    <textarea type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
 
                     <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
 
 
 
                     <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Reset zoom</button>
-
+                    <label htmlFor="order-by-district" style={{ fontSize: 'larger' }}>Order by district</label>
+                    <input type="checkbox" id="order-by-district" name="order-by-district" style={{ marginLeft: '10px' }} />
                     <div id="result"></div>
                 </form>
             </div>
@@ -105,10 +107,11 @@ async function setupFormHandler() {
     form.addEventListener('submit', onSubmit);
 
     const select = document.getElementById('district-select');
-    if (select)
-    {
-        select.addEventListener('change', onDistrictTypeChange);
-    }
+    select.addEventListener('change', onDistrictTypeChange);
+
+    const orderCheckbox = document.getElementById('order-by-district');
+    orderCheckbox.addEventListener('change', onOrderByDistrictChange);
+    
 }
 
 
@@ -140,6 +143,20 @@ async function onDistrictTypeChange(event) {
     await displayTextResults(
         latestHouseDistrictsWithAddresses,
         latestSenateDistrictsWithAddresses,
+        latestAddresses,
+        mapManager,
+        districtManager,
+        selectedType
+    );
+}
+
+async function onOrderByDistrictChange() {
+    const select = document.getElementById('district-select');
+    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
+    await displayTextResults(
+        latestHouseDistrictsWithAddresses,
+        latestSenateDistrictsWithAddresses,
+        latestAddresses,
         mapManager,
         districtManager,
         selectedType
@@ -254,6 +271,7 @@ async function onSubmit(event) {
     // Display text results.
     latestHouseDistrictsWithAddresses = districtManager.getHouseDistrictsWithAddresses();
     latestSenateDistrictsWithAddresses = districtManager.getSenateDistrictsWithAddresses();
+    latestAddresses = addresses.slice();
 
     const select = document.getElementById('district-select');
     const selectedType = select?.value === 'senate' ? 'senate' : 'house';
@@ -263,6 +281,7 @@ async function onSubmit(event) {
     await displayTextResults(
         latestHouseDistrictsWithAddresses,
         latestSenateDistrictsWithAddresses,
+        latestAddresses,
         mapManager,
         districtManager,
         selectedType
