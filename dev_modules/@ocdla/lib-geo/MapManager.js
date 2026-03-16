@@ -96,12 +96,14 @@ export default class MapManager {
         const districtSpan = district.getDistrictSize();
 
         // For small districts, show labels at all zoom levels
-        if (districtSpan < 0.18) {
+        if (districtSpan < 0.18)
+        {
             return 10;
         }
 
         // For larger districts, we can show labels at a more zoomed-out level
-        if (districtSpan < 0.35) {
+        if (districtSpan < 0.35)
+        {
             return 9;
         }
 
@@ -118,7 +120,8 @@ export default class MapManager {
             const currentLabel = marker.getLabel();
             const currentText = typeof currentLabel === 'string' ? currentLabel : currentLabel?.text;
 
-            if (currentText !== labelText) {
+            if (currentText !== labelText)
+            {
                 marker.setOptions({
                     label: {
                         ...(typeof currentLabel === 'object' && currentLabel ? currentLabel : {}),
@@ -141,19 +144,24 @@ export default class MapManager {
         const bounds = new google.maps.LatLngBounds();
 
         // If the feature is a polygon, we need to iterate through its paths to extend the bounds
-        if (typeof feature.getPaths === 'function') {
+        if (typeof feature.getPaths === 'function')
+        {
             const paths = feature.getPaths();
-            for (let i = 0; i < paths.getLength(); i++) {
+            for (let i = 0; i < paths.getLength(); i++)
+            {
                 const path = paths.getAt(i);
-                for (let j = 0; j < path.getLength(); j++) {
+                for (let j = 0; j < path.getLength(); j++)
+                {
                     bounds.extend(path.getAt(j));
                 }
             }
-        } 
+        }
         // If the feature has a method to get its coordinates as LatLng objects, use that to extend the bounds
-        else if (typeof feature.getCoordsAsObjects === 'function') {
+        else if (typeof feature.getCoordsAsObjects === 'function')
+        {
             feature.getCoordsAsObjects().forEach(coord => bounds.extend(coord));
-        } else {
+        } else
+        {
             return;
         }
 
@@ -215,8 +223,9 @@ export default class MapManager {
     resetPolygons() {
         this.currentPolygons.forEach(polygon => {
             polygon.setOptions({
-                fillOpacity: 0.0 });
-                polygon.setMap(this.map);
+                fillOpacity: 0.0
+            });
+            polygon.setMap(this.map);
         });
     }
 
@@ -224,6 +233,7 @@ export default class MapManager {
     resetZoom() {
         this.map.setZoom(7);
         this.map.setCenter({ lat: 43.9336, lng: -120.5583 });
+        // 43.9336°N 120.5583°W﻿
     }
 
     // Draw markers for all addresses within the given districts
@@ -302,14 +312,23 @@ async function initMap() {
     }
 
 
-
+    let center = { lat: 42.21379354246165, lng: -120.77573729710579 };
+    let center2 = { lat: 44.010, lng: -120.5583 };
     // Initialize the map
     let map = new google.maps.Map(mapEl, {
         zoom: 7,
-        center: { lat: 43.9336, lng: -120.5583 },
+        center: center2,
         mapTypeId: 'roadmap',
         gestureHandling: 'greedy'
     });
+
+
+    google.maps.event.addDomListener(window, "resize", function() {
+        var center = map.getCenter();
+        google.maps.event.trigger(map, 'resize');
+        map.setCenter(center);
+    });
+
 
 
     return map;

@@ -28,7 +28,7 @@ export default function Map() {
     }, []); // Run once on component mount
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
             <div id="form-container" style={{ width: '20%', padding: '10px', paddingTop: '80px', boxSizing: 'border-box' }}>
                 <form id="district-lookup" method="post">
 
@@ -52,7 +52,7 @@ export default function Map() {
                 </form>
             </div>
 
-            <div id="map" style={{ width: '79%' }}></div>
+            <div id="map" style={{ flex: 1, width: '79%', height: '100%' }}></div>
         </div>
     );
 }
