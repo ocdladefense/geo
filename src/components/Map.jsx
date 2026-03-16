@@ -31,23 +31,28 @@ export default function Map() {
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', height: '100vh', width: '100%' }}>
             <div id="form-container" style={{ width: '20%', padding: '10px', paddingTop: '80px', boxSizing: 'border-box' }}>
                 <form id="district-lookup" method="post">
-                    <label style={{ fontSize: 'larger' }} htmlFor="address">Enter Address:</label>
-                    <textarea style={{ padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60">118 NW Jackson Ave. Corvallis, Oregon 97330</textarea>
 
-                    <button style={{ padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Find district</button>
-                    
-                    <label htmlFor="district-select">Show info for:</label>
-                    <select id="district-select">
-                        <option value="">--Select a district--</option>
+                    <label for="district-select">Features</label><br />
+                    <select id="district-select" className="mb-4">
+                        <option value="">--Select feature--</option>
                         <option value="house">House Districts</option>
                         <option value="senate">Senate Districts</option>
                     </select>
-                    <button style={{ padding: '10px', fontSize: 'larger' }} onClick={() => mapManager.resetZoom()} id="reset-zoom-button" type="button">Reset Zoom</button>
+
+                    <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
+                    <input type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
+
+                    <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
+
+
+
+                    <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Reset zoom</button>
+
                     <div id="result"></div>
                 </form>
             </div>
 
-            <div id="map" style={{ width: '75%' }}></div>
+            <div id="map" style={{ width: '79%' }}></div>
         </div>
     );
 }
