@@ -319,7 +319,8 @@ async function initMap() {
         zoom: 7,
         center: center2,
         mapTypeId: 'roadmap',
-        gestureHandling: 'greedy'
+        gestureHandling: 'greedy',
+        mapTypeControl: false
     });
 
 

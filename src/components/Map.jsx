@@ -4,6 +4,8 @@ import DistrictManager from '@ocdla/lib-geo/DistrictManager.js';
 import Address from '@ocdla/lib-geo/Address.js';
 import Cache from '@ocdla/lib-geo/Cache.js';
 import { domReady } from '@ocdla/lib-utils/domReady.js';
+import useModal from './hooks/useModal.js';
+import Modal from './ui/Modal.jsx';
 import { displayTextResults } from './districts/DistrictToAddressesTable.js';
 import LookupTable from './districts/LookupTable.jsx';
 import LegislativeDistrictLookupResult from './districts/LegislativeDistrictLookupResult.js';
@@ -19,6 +21,19 @@ let latestAddresses = [];
 
 
 export default function Map() {
+
+
+    const { isOpen, modalContent, openModal, closeModal } = useModal();
+
+    const handleOpenCustomModal = () => {
+        openModal(
+            <div >
+                <h2 className="text-2xl font-semibold mb-4">Modal</h2>
+                <a onClick={closeModal} className="text-blue-500 hover:underline cursor-pointer">Close</a>
+            </div>
+        );
+    };
+
 
     useEffect(function() {
         async function initialize() {
@@ -40,16 +55,19 @@ export default function Map() {
                         <option value="senate">Senate Districts</option>
                     </select>
 
+                    <a onClick={handleOpenCustomModal}>Modal</a>
+
                     <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
                     <textarea type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
 
                     <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
 
-
-
                     <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="submit">Reset zoom</button>
                     <label htmlFor="order-by-district" style={{ fontSize: 'larger' }}>Order by district</label>
                     <input type="checkbox" id="order-by-district" name="order-by-district" style={{ marginLeft: '10px' }} />
+
+                    <Modal isOpen={isOpen} content={modalContent} onClose={closeModal} />
+
                     <div id="result"></div>
                 </form>
             </div>
@@ -111,7 +129,7 @@ async function setupFormHandler() {
 
     const orderCheckbox = document.getElementById('order-by-district');
     orderCheckbox.addEventListener('change', onOrderByDistrictChange);
-    
+
 }
 
 
