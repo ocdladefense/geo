@@ -29,6 +29,7 @@ export default function Results({ addresses = [], onClick = () => { } }, groupBy
         table1 = ResultsTable(addresses);
         table2 = ResultsTable(addresses);
         table1.addEventListener('click', onClick);
+        table2.addEventListener('click', e => { onClick(e); closeModal(); });
         containerRef.current.appendChild(table1);
     }
 

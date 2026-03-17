@@ -47,6 +47,11 @@ export default class MapManager {
     }
 
 
+    renderObject(obj) {
+        obj.setMap(this.map);
+    }
+
+
     renderAll() {
         this.currentPolygons.forEach((polygon, key) => {
             polygon.setMap(this.map);

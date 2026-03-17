@@ -198,7 +198,7 @@ async function onSubmit(event, setAddresses) {
 
 
     // Process the addresses, geocoding and finding districts, with caching.
-    let addresses = await processAddresses(districtManager, input, addr => mapManager.drawMarker(addr));
+    let addresses = await processAddresses(districtManager, input, addr => { let marker = mapManager.drawMarker(addr); mapManager.renderObject(marker); });
 
 
 
