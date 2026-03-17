@@ -35,9 +35,9 @@ export default function Map() {
     }, []); // Run once on component mount
 
     return (
-        <div style={{ position: 'relative', justifyContent: 'space-between', height: '100vh', width: '100%', overflow: 'hidden' }} className="flex flex-col tablet:flex-row">
+        <div className="relative h-[100vh] w-[100%] overflow-auto tablet:overflow-hidden">
 
-            <div style={{ position: "absolute", top: "40px", left: "10px", zIndex: 1, width: "25%" }}>
+            <div className="static tablet:absolute tablet:w-[25%] top-[40px] left-[10px] z-10">
 
                 <div id="form-container" className="block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
                     <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
