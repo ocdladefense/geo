@@ -75,12 +75,17 @@ async function draw() {
 
     mapManager = new MapManager();
 
-    /*
+
 
     function updateLabelVisibility() {
         // Show or hide labels based on the current zoom level and their specified minimum zoom
         const zoomLevel = this.map.getZoom() ?? 0;
-        this.currentLabels.forEach(({ marker, minZoom, baseText }) => {
+        this.currentLabels.forEach((marker, key) => {
+
+            let meta = this.metadata.get(key);
+            let minZoom = meta.minZoom;
+            let baseText = meta.baseText;
+
             marker.setVisible(zoomLevel >= minZoom);
 
             const labelText = zoomLevel >= 14 ? `District ${baseText}` : baseText;
@@ -99,16 +104,16 @@ async function draw() {
         });
     }
 
-    mapManager.onZoomChange(updateLabelVisibility);
-    */
 
     await mapManager.load();
+    mapManager.onZoomChange(updateLabelVisibility);
 
 
     mapManager.drawDistricts(districtManager.houseDistricts);
     mapManager.drawDistricts(districtManager.senateDistricts);
 
     mapManager.renderAll();
+    mapManager.run(updateLabelVisibility);
 }
 
 
@@ -156,7 +161,7 @@ async function onSubmit(event) {
 
 
 
-    // Clear previous results (highlights and markers only, keep outlines)
+    // Clear previous results (highlights and markers only, keep outlines).
     mapManager.resetPolygons();
     mapManager.clearMarkers();
     districtManager.clearAllAddresses();

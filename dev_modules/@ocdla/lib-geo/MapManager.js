@@ -103,35 +103,21 @@ export default class MapManager {
     }
 
 
-    // change to onZoomChange;
-    bindZoomHandler() {
-        this.zoomListener = this.map.addListener('zoom_changed', () => {
-            this.updateLabelVisibility(); // Update label visibility on zoom change
-            console.log('Zoom level changed to:', this.map.getZoom());
-        });
+
+    onZoomChange(callback) {
+        if (this.zoomListener)
+        {
+            google.maps.event.removeListener(this.zoomListener);
+        }
+        this.zoomListener = this.map.addListener('zoom_changed', callback.bind(this));
     }
 
-
-    updateLabelVisibility() {
-        // Show or hide labels based on the current zoom level and their specified minimum zoom
-        const zoomLevel = this.map.getZoom() ?? 0;
-        this.currentLabels.forEach(({ marker, minZoom, baseText }) => {
-            marker.setVisible(zoomLevel >= minZoom);
-
-            const labelText = zoomLevel >= 14 ? `District ${baseText}` : baseText;
-            const currentLabel = marker.getLabel();
-            const currentText = typeof currentLabel === 'string' ? currentLabel : currentLabel?.text;
-
-            if (currentText !== labelText)
-            {
-                marker.setOptions({
-                    label: {
-                        ...(typeof currentLabel === 'object' && currentLabel ? currentLabel : {}),
-                        text: labelText,
-                    }
-                });
-            }
-        });
+    removeZoomChangeListener() {
+        if (this.zoomListener)
+        {
+            google.maps.event.removeListener(this.zoomListener);
+            this.zoomListener = null;
+        }
     }
 
 
@@ -424,8 +410,11 @@ export default class MapManager {
             console.error('Error loading Google Maps:', error);
         });
 
-        this.bindZoomHandler();
         // this.updateLabelVisibility();
+    }
+
+    run(fn) {
+        fn.bind(this)();
     }
 }
 
