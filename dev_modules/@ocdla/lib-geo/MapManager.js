@@ -289,7 +289,7 @@ export default class MapManager {
 
     panTo(location) {
         this.map.panTo(location);
-        this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
+        this.map.setZoom(9); // Zoom to an appropriate level for viewing the district
     }
 
 
@@ -398,7 +398,7 @@ export default class MapManager {
     // Reset the map zoom and center to the default view
     resetZoom() {
         this.map.setZoom(7);
-        this.map.setCenter({ lat: 43.9336, lng: -120.5583 });
+        this.map.setCenter({ lat: 43.9336, lng: -122.00 });
         // 43.9336°N 120.5583°W﻿
     }
 
@@ -436,7 +436,7 @@ async function initMap() {
 
 
     let center = { lat: 42.21379354246165, lng: -120.77573729710579 };
-    let center2 = { lat: 44.010, lng: -120.5583 };
+    let center2 = { lat: 44.010, lng: -122.00 };
     // Initialize the map
     let map = new google.maps.Map(mapEl, {
         zoom: 7,

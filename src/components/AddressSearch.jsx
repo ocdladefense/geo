@@ -9,15 +9,6 @@ export default function AddressSearch({ onSubmit }) {
 
         <form id="district-lookup" method="post" onSubmit={onSubmit}>
 
-            <label for="district-select">Features</label><br />
-            <select id="district-select" className="mb-4">
-                <option value="">--Select feature--</option>
-                <option value="house">House Districts</option>
-                <option value="senate">Senate Districts</option>
-            </select>
-
-
-
             <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
             <textarea type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
 
