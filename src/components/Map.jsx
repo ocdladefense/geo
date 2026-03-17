@@ -24,6 +24,7 @@ export default function Map() {
     useEffect(function() {
         async function initialize() {
             await draw();
+            render();
         }
         initialize();
     }, []); // Run once on component mount
@@ -74,7 +75,47 @@ async function draw() {
 
     mapManager = new MapManager();
 
+    /*
+
+    function updateLabelVisibility() {
+        // Show or hide labels based on the current zoom level and their specified minimum zoom
+        const zoomLevel = this.map.getZoom() ?? 0;
+        this.currentLabels.forEach(({ marker, minZoom, baseText }) => {
+            marker.setVisible(zoomLevel >= minZoom);
+
+            const labelText = zoomLevel >= 14 ? `District ${baseText}` : baseText;
+            const currentLabel = marker.getLabel();
+            const currentText = typeof currentLabel === 'string' ? currentLabel : currentLabel?.text;
+
+            if (currentText !== labelText)
+            {
+                marker.setOptions({
+                    label: {
+                        ...(typeof currentLabel === 'object' && currentLabel ? currentLabel : {}),
+                        text: labelText,
+                    }
+                });
+            }
+        });
+    }
+
+    mapManager.onZoomChange(updateLabelVisibility);
+    */
+
     await mapManager.load();
+
+
+    mapManager.drawDistricts(districtManager.houseDistricts);
+    mapManager.drawDistricts(districtManager.senateDistricts);
+
+    mapManager.renderAll();
+}
+
+
+
+function render() {
+
+
 
     const select = document.getElementById('district-select');
     const selectedType = select?.value === 'senate' ? 'senate' : 'house';
@@ -83,11 +124,19 @@ async function draw() {
         select.value = 'house';
     }
 
-    const districts = selectedType === 'senate' ? districtManager.senateDistricts : districtManager.houseDistricts;
-    mapManager.renderDistrictLayer(selectedType, districts);
+    function keyFunction(key) {
+        if (selectedType === 'house')
+        {
+            return key.startsWith('H');
+        } else if (selectedType === 'senate')
+        {
+            return key.startsWith('S');
+        }
+    }
+
+    mapManager.render(keyFunction);
+    // mapManager.renderZoomFunction((entry) => { entry.minZoom > currentZoomLevel });
 }
-
-
 
 
 
@@ -176,7 +225,7 @@ async function onSubmit(event) {
             let houseLabel = "H" + house;
             let senateLabel = "S" + senate;
             mapManager.shadePolygon(houseLabel);
-            mapManager.shadePolygon(senateLabel);
+            mapManager.shadePolygon(senateLabel, '#e55734');
             mapManager.panTo(obj);
         }
     });

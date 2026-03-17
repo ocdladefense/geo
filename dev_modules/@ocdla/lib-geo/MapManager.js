@@ -11,11 +11,15 @@ export default class MapManager {
     // Track current district polygons on the map for cleanup
     currentPolygons = new Map();
 
+    // Track district number labels so they can persist independently of address markers.
+    currentLabels = new Map();
+
     // Track current address markers on the map for cleanup
     currentMarkers = [];
 
-    // Track district number labels so they can persist independently of address markers.
-    currentLabels = new Map();
+    // Store any additional metadata for districts, labels, and addresses as needed.
+    metadata = new Map();
+
 
     zoomListener = null; // Store the zoom listener reference for cleanup
 
@@ -24,99 +28,61 @@ export default class MapManager {
     constructor() { }
 
 
-    // Getter for the map instance
-    getMap() {
-        return this.map;
-    }
 
-    clearPolygons() {
-        // Remove all polygons from the map and clear the tracking array
-        this.currentPolygons.forEach(polygon => polygon.setMap(null));
-        this.currentPolygons.clear();
-    }
 
-    clearMarkers() {
-        // Remove all markers from the map and clear the tracking array
-        this.currentMarkers.forEach(marker => marker.setMap(null));
-        this.currentMarkers = [];
-    }
+    render(keyFunction) {
 
-    clearLabels() {
-        this.currentLabels.forEach(({ marker }) => marker.setMap(null));
-        this.currentLabels.clear();
+        // Based oon the provided key function, determine which districts to render and which to hide. This allows us to render both house and senate districts at once without needing to clear polygons in between.
+
+        this.currentPolygons.forEach((polygon, key) => {
+            const shouldRender = keyFunction(key);
+            polygon.setMap(shouldRender ? this.map : null);
+        });
+
+        this.currentLabels.forEach((label, key) => {
+            const shouldRender = keyFunction(key);
+            label.setMap(shouldRender ? this.map : null);
+        });
+
     }
 
 
+    renderAll() {
+        this.currentPolygons.forEach((polygon, key) => {
+            polygon.setMap(this.map);
+        });
 
-    // Add a polygon to the map and track it for cleanup
-    addPolygon(polygon, key) {
-        this.currentPolygons.set(key, polygon);
-    }
+        this.currentLabels.forEach((label, key) => {
+            label.setMap(this.map);
+        });
 
-    // Add a marker to the map and track it for cleanup
-    addMarker(marker) {
-        this.currentMarkers.push(marker);
-    }
-
-    addLabel(label, key, minZoom = 0, baseText = '') {
-        this.currentLabels.set(key, {
-            marker: label,
-            minZoom,
-            baseText
+        this.currentMarkers.forEach(marker => {
+            marker.setMap(this.map);
         });
     }
 
+    // This gets called on zoom change.
+    reRender() {
 
 
-    renderDistrictLayer(selectedType, districts) {
-        // Clear existing polygons and labels before rendering new ones
-        this.clearPolygons();
-        this.clearLabels();
+        const existingLabel = this.currentLabels.get(key);
 
-        // Determine which districts to render based on selected type
-        const prefix = selectedType === 'senate' ? 'S' : 'H';
-
-        // Render each district as a polygon with a label
-        districts.forEach(district => {
-            const key = prefix + district.id;
-            const contentCallback = selectedType === 'senate'
-                ? () => district.getSenateDistrictInfo()
-                : () => district.getHouseDistrictInfo();
-            this.draw(district.getCoordsAsObjects(), key, false, contentCallback);
-            this.drawDistrictLabel(district.findCenter(), `${district.id}`, `${key}-label`, this.getLabelMinZoom(district));
-        });
-    }
-
-    // Draw a polygon on the map
-    draw(paths, key, shaded = false, content = null) {
-        const polygon = new google.maps.Polygon({
-            paths: paths,
-            fillColor: '#2b6cb0',
-            fillOpacity: shaded ? 0.35 : 0.0, // Fill only if shaded
-            strokeColor: '#2b6cb0',
-            strokeOpacity: 1,
-            strokeWeight: 4,
-            clickable: !!content
-        });
-        polygon.setMap(this.map);
-        this.addPolygon(polygon, key);
-        // If a content function is provided, add a click listener to the polygon
-        if (content)
+        if (existingLabel)
         {
-            polygon.addListener('click', async (event) => {
-                this.zoomToFeature(polygon);
-                const infoContent = await content(event);
-                const infoWindow = new google.maps.InfoWindow({ content: infoContent });
-                infoWindow.setPosition(event.latLng);
-                infoWindow.open(this.map);
-            });
+            existingLabel.marker.setPosition(center);
+            existingLabel.marker.setMap(this.map);
+            existingLabel.minZoom = minZoom;
+            existingLabel.baseText = String(text);
+            this.updateLabelVisibility();
+            return;
         }
+
+
+
+        this.updateLabelVisibility();
     }
 
-    panTo(location) {
-        this.map.panTo(location);
-        this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
-    }
+
 
     getLabelMinZoom(district) {
         const districtSpan = district.getDistrictSize();
@@ -135,6 +101,16 @@ export default class MapManager {
 
         return 0;
     }
+
+
+    // change to onZoomChange;
+    bindZoomHandler() {
+        this.zoomListener = this.map.addListener('zoom_changed', () => {
+            this.updateLabelVisibility(); // Update label visibility on zoom change
+            console.log('Zoom level changed to:', this.map.getZoom());
+        });
+    }
+
 
     updateLabelVisibility() {
         // Show or hide labels based on the current zoom level and their specified minimum zoom
@@ -158,12 +134,177 @@ export default class MapManager {
         });
     }
 
-    bindZoomHandler() {
-        this.zoomListener = this.map.addListener('zoom_changed', () => {
-            this.updateLabelVisibility(); // Update label visibility on zoom change
-            console.log('Zoom level changed to:', this.map.getZoom());
+
+
+
+
+
+    // Getter for the map instance
+    getMap() {
+        return this.map;
+    }
+
+    clearPolygons() {
+        // Remove all polygons from the map and clear the tracking array
+        this.currentPolygons.forEach(polygon => polygon.setMap(null));
+        this.currentPolygons.clear();
+    }
+
+    clearLabels() {
+        this.currentLabels.forEach(({ marker }) => marker.setMap(null));
+        this.currentLabels.clear();
+    }
+
+    clearMarkers() {
+        // Remove all markers from the map and clear the tracking array
+        this.currentMarkers.forEach(marker => marker.setMap(null));
+        this.currentMarkers = [];
+    }
+
+
+
+
+
+
+
+    // Add a marker to the map and track it for cleanup
+    addMarker(marker) {
+        this.currentMarkers.push(marker);
+    }
+
+
+
+    addMetadata(key, metadata) {
+        this.metadata.set(key, metadata);
+    }
+
+
+
+    drawDistricts(districts) {
+
+
+        // Determine which districts to render based on selected type
+
+
+        // Render each district as a polygon with a label
+        districts.forEach(district => {
+
+            const prefix = district.type === 'senate' ? 'S' : 'H';
+
+            const key = prefix + district.id;
+
+            const contentCallback = district.type === 'senate'
+                ? () => district.getSenateDistrictInfo()
+                : () => district.getHouseDistrictInfo();
+
+            // Setup a polygon representing the district.
+            let poly = this.draw(district.getCoordsAsObjects(), false, contentCallback);
+            this.currentPolygons.set(key, poly);
+
+            // Setup a label for the polygon.
+            let minZoom = this.getLabelMinZoom(district);
+            let meta = {
+                minZoom,
+                baseText: String(district.id)
+            };
+
+            let label = this.drawLabel(district.findCenter(), district.id);
+            this.currentLabels.set(key, label);
+
+            // Store any metadata for the district and label.
+            this.metadata.set(key, meta);
         });
     }
+
+
+
+
+    // Draw a polygon on the map
+    draw(paths, shaded = false, content = null) {
+        const polygon = new google.maps.Polygon({
+            paths: paths,
+            fillColor: '#2b6cb0',
+            fillOpacity: shaded ? 0.35 : 0.0, // Fill only if shaded
+            strokeColor: '#2b6cb0',
+            strokeOpacity: 1,
+            strokeWeight: 4,
+            clickable: !!content
+        });
+        polygon.setMap(null);
+
+        // If a content function is provided, add a click listener to the polygon
+        if (content)
+        {
+            polygon.addListener('click', async (event) => {
+                this.zoomToFeature(polygon);
+                const infoContent = await content(event);
+                const infoWindow = new google.maps.InfoWindow({ content: infoContent });
+                infoWindow.setPosition(event.latLng);
+                infoWindow.open(this.map);
+            });
+        }
+
+        return polygon;
+    }
+
+
+
+    // Draw a persistent district label at its center point.
+    drawLabel(center, text) {
+
+
+        const label = new google.maps.Marker({
+            position: center,
+            map: null,
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 0,
+                fillOpacity: 0,
+                strokeOpacity: 0
+            },
+            label: {
+                text: String(text),
+                color: '#1a1a1a',
+                fontSize: '18px',
+                fontWeight: '700'
+            },
+            clickable: false,
+            zIndex: 1000
+        });
+
+
+
+        return label;
+    }
+
+
+
+    // Draw markers for all addresses within the given districts
+    drawMarker(address) {
+        // For each address in the district, create a marker
+        const marker = new google.maps.Marker({
+            position: address.location,
+            map: null,
+            title: address.address
+        });
+
+        this.addMarker(marker); // Track marker for cleanup
+
+        return marker;
+    }
+
+
+    // drawAndHide()
+
+    panTo(location) {
+        this.map.panTo(location);
+        this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
+    }
+
+
+
+
+
 
     // Zoom to fit a district object or a google.maps.Polygon.
     zoomToFeature(feature) {
@@ -226,11 +367,11 @@ export default class MapManager {
     }
 
     // Shade a polygon by ID
-    shadePolygon(id) {
+    shadePolygon(id, color = '#2b6cb0') {
         const polygon = this.getPolygonById(id);
         if (polygon)
         {
-            polygon.setOptions({ fillOpacity: 0.35 });
+            polygon.setOptions({ fillOpacity: 0.35, fillColor: color });
             polygon.setMap(this.map);
         }
     }
@@ -240,16 +381,24 @@ export default class MapManager {
         const polygon = this.getPolygonById(id);
         if (polygon)
         {
-            polygon.setOptions({ fillOpacity: 0.0 });
+            polygon.setOptions({ fillOpacity: 0.0, fillColor: '#2b6cb0' });
             polygon.setMap(this.map);
         }
     }
+
+
+
+
+
+
 
     // Reset all polygons to unshaded state
     resetPolygons() {
         this.currentPolygons.forEach(polygon => {
             polygon.setOptions({
-                fillOpacity: 0.0
+                fillOpacity: 0.0,
+                fillColor: '#2b6cb0'
+
             });
             polygon.setMap(this.map);
         });
@@ -262,52 +411,6 @@ export default class MapManager {
         // 43.9336°N 120.5583°W﻿
     }
 
-    // Draw markers for all addresses within the given districts
-    drawMarker(address) {
-        // For each address in the district, create a marker
-        const marker = new google.maps.Marker({
-            position: address.location,
-            map: this.map,
-            title: address.address
-        });
-        this.addMarker(marker); // Track marker for cleanup
-    }
-
-    // Draw a persistent district label at its center point.
-    drawDistrictLabel(center, text, key, minZoom = 0) {
-        const existingLabel = this.currentLabels.get(key);
-        if (existingLabel)
-        {
-            existingLabel.marker.setPosition(center);
-            existingLabel.marker.setMap(this.map);
-            existingLabel.minZoom = minZoom;
-            existingLabel.baseText = String(text);
-            this.updateLabelVisibility();
-            return;
-        }
-
-        const label = new google.maps.Marker({
-            position: center,
-            map: this.map,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 0,
-                fillOpacity: 0,
-                strokeOpacity: 0
-            },
-            label: {
-                text: String(text),
-                color: '#1a1a1a',
-                fontSize: '18px',
-                fontWeight: '700'
-            },
-            clickable: false,
-            zIndex: 1000
-        });
-
-        this.addLabel(label, key, minZoom, String(text));
-        this.updateLabelVisibility();
-    }
 
     // Clear all polygons and markers from the map
     clearAll() {
@@ -322,7 +425,7 @@ export default class MapManager {
         });
 
         this.bindZoomHandler();
-        this.updateLabelVisibility();
+        // this.updateLabelVisibility();
     }
 }
 
