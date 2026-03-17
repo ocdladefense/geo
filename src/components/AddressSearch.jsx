@@ -1,26 +1,9 @@
-import useModal from './hooks/useModal.js';
-import Modal from './ui/Modal.jsx';
 import { useEffect } from 'react';
 
 
-export default function AddressSearch({ mapManager, onSubmit, onMapReset }) {
+export default function AddressSearch({ onSubmit }) {
 
 
-
-    const { isOpen, modalContent, openModal, closeModal } = useModal();
-
-    useEffect(function() {
-        // setupFormHandler();
-    }, []); // Run once on component mount
-
-    const handleOpenCustomModal = () => {
-        openModal(
-            <div>
-                <h2 className="text-2xl font-semibold mb-4">Modal</h2>
-                <a onClick={closeModal} className="text-blue-500 hover:underline cursor-pointer">Close</a>
-            </div>
-        );
-    };
 
     return (
 
@@ -33,17 +16,12 @@ export default function AddressSearch({ mapManager, onSubmit, onMapReset }) {
                 <option value="senate">Senate Districts</option>
             </select>
 
-            <a onClick={handleOpenCustomModal}>Modal</a>
+
 
             <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
             <textarea type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
 
             <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
-
-            <button onClick={onMapReset} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px' }} id="find-district" type="button">Reset zoom</button>
-
-
-            <Modal isOpen={isOpen} content={modalContent} onClose={closeModal} />
 
 
         </form>
