@@ -15,6 +15,7 @@ const LEGISLATIVE_SESSION_CODE = "2026R1";
 
 router.get("/legislators/:type", async (req, res) => {
 
+
     // If the important json file already exists skip all this below and return the json file
     let json = await useCache("legislators.json", () => slowLoadData(LEGISLATIVE_SESSION_CODE));
 
