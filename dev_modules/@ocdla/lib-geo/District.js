@@ -61,11 +61,7 @@ export default class District {
     // Addresses that fall within this district.
     addresses = [];
 
-    // @todo not necessary.
-    representative = null;
-
-    // @todo not necessary.
-    senator = null;
+    legislator; // The legislator representing this district, if known.
 
 
     constructor(coords, id) {
@@ -122,7 +118,7 @@ export default class District {
         const lngSpan = Math.abs(this.eastPoint[1] - this.westPoint[1]);
         // Use the larger of the two spans as a simple measure of district size
         const districtSpan = Math.max(latSpan, lngSpan);
-        
+
         return districtSpan;
     }
 
@@ -204,7 +200,7 @@ export default class District {
         return `
             <div><strong>House District ${this.id}</strong><br>
             <b>Address(es):</b><br>${addressList.join('<br>')}<br><br>
-            ${this.representative ? `<b>Representative: </b>${this.representative.FirstName} ${this.representative.LastName}<br>${this.representative.Party}<br>${this.representative.EmailAddress}<br><br>` : ''}
+            ${this.legislator ? `<b>Representative: </b>${this.legislator.FirstName} ${this.legislator.LastName}<br>${this.legislator.Party}<br>${this.legislator.EmailAddress}<br><br>` : ''}
             </div>
         `;
     }
@@ -215,7 +211,7 @@ export default class District {
         return `
             <div><strong>Senate District ${this.id}</strong><br>
             <b>Address(es):</b><br>${addressList.join('<br>')}<br><br>
-            ${this.senator ? `<b>Senator: </b>${this.senator.FirstName} ${this.senator.LastName}<br>${this.senator.Party}<br>${this.senator.EmailAddress}<br><br>` : ''}
+            ${this.legislator ? `<b>Senator: </b>${this.legislator.FirstName} ${this.legislator.LastName}<br>${this.legislator.Party}<br>${this.legislator.EmailAddress}<br><br>` : ''}
             </div>
         `;
     }

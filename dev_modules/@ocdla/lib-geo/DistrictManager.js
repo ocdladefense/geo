@@ -61,33 +61,33 @@ class DistrictManager {
     // Load representatives data and associate with districts
     async loadRepresentatives() {
         const data = await fetch('/legislators/representatives').then(r => r.json());
-        data.forEach(rep => {
-            const districtNum = rep.DistrictNumber;
-            // Associate representative with the correct district (1-60)
-            const district = this.houseDistricts[districtNum - 1];
-
-            district.representative = rep;
-            // Check if the representative is in a house or senate district and log it
-            // console.log('This representative is in a house district');
-            // console.log('Representative ' + district.representative.FirstName + ' ' + district.representative.LastName + ' is in district ' + districtNum);
-        });
+        this.loadLegislators(data, 'house');
         console.log('Loaded representatives data');
     }
 
     // Load senators data and associate with districts
     async loadSenators() {
         const data = await fetch('/legislators/senators').then(r => r.json());
-        data.forEach(senator => {
-            const districtNum = senator.DistrictNumber;
-            // Associate senator with the correct district (1-30)
-            const district = this.senateDistricts[districtNum - 1];
 
-            district.senator = senator;
-            // Check if the senator is in a house or senate district and log it
-            // console.log('This senator is in a senate district');
-            //console.log('Senator ' + district.senator.FirstName + ' ' + district.senator.LastName + ' is in district ' + districtNum);
-        });
+        this.loadLegislators(data, 'senate');
         console.log('Loaded senators data');
+
+    }
+
+    loadLegislators(data, type) {
+
+        let store = type + "Districts";
+
+        data.forEach(rep => {
+            const districtNum = rep.DistrictNumber;
+            // Associate representative with the correct district (1-60)
+            const district = this[store][districtNum - 1];
+
+            district.legislator = rep;
+            // Check if the representative is in a house or senate district and log it
+            // console.log('This representative is in a house district');
+            // console.log('Representative ' + district.representative.FirstName + ' ' + district.representative.LastName + ' is in district ' + districtNum);
+        });
     }
 
     // Get all districts
