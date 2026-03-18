@@ -32,7 +32,7 @@ export default class MapManager {
 
     render(keyFunction) {
 
-        // Based oon the provided key function, determine which districts to render and which to hide. This allows us to render both house and senate districts at once without needing to clear polygons in between.
+        // Based on the provided key function, determine which districts to render and which to hide. This allows us to render both house and senate districts at once without needing to clear polygons in between.
 
         this.currentPolygons.forEach((polygon, key) => {
             const shouldRender = keyFunction(key);
@@ -325,10 +325,13 @@ export default class MapManager {
 
         this.map.fitBounds(bounds);
         this.map.panTo(bounds.getCenter());
+        this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
+        
     }
 
     // Shade districts and make them clickable with info windows
-    makePolygonClickable(id, clickable = true, contentCallback = null) {
+    async makePolygonClickable(id, clickable = true, contentCallback = null, options = {}) {
+        const { openInfoWindow = false, infoWindowPosition = null } = options;
         const polygon = this.getPolygonById(id);
         if (polygon)
         {
@@ -346,6 +349,15 @@ export default class MapManager {
                     infoWindow.setPosition(event.latLng);
                     infoWindow.open(this.map);
                 });
+            }
+
+            if (openInfoWindow && contentCallback)
+            {
+                this.zoomToFeature(polygon);
+                const infoContent = await contentCallback();
+                const infoWindow = new google.maps.InfoWindow({ content: infoContent });
+                infoWindow.setPosition(infoWindowPosition ?? this.map.getCenter());
+                infoWindow.open(this.map);
             }
 
             polygon.setMap(this.map);

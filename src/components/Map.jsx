@@ -13,6 +13,8 @@ import { processAddresses } from '@ocdla/lib-geo/AddressProcessor.js';
 let districtManager;
 let mapManager;
 let cache;
+let latestGroupedByHouse = {};
+let latestGroupedBySenate = {};
 
 
 
@@ -22,16 +24,32 @@ export default function Map() {
     let [addresses, setAddresses] = useState([]);
     let submitFunction = getSubmitFunction(setAddresses);
     // // Check if the "Group By District" checkbox is checked
-    // const orderByDistrict = document.getElementById('order-by-district')?.checked ?? false;
+    const orderByDistrict = document.getElementById('order-by-district')?.checked ?? false;
 
 
 
     useEffect(function() {
+        let cleanup = () => { };
+        //
         async function initialize() {
             await draw();
             render();
+            // Add event listener for district type selection
+            const select = document.getElementById('district-select');
+            if (select) {
+                // When the district type changes, we want to re-render the map to show the appropriate districts.
+                const onDistrictChange = () => render();
+                select.addEventListener('change', onDistrictChange);
+                cleanup = () => select.removeEventListener('change', onDistrictChange);
+            }
         }
+        
         initialize();
+
+        // Cleanup function to remove event listeners when the component unmounts
+        return function() {
+            cleanup();
+        };
     }, []); // Run once on component mount
 
     return (
@@ -70,7 +88,7 @@ export default function Map() {
 
 
 
-function handleResultClick(e) {
+async function handleResultClick(e) {
     let target = e.target;
     if (target.tagName === 'A')
     {
@@ -89,11 +107,29 @@ function handleResultClick(e) {
         // #3 - Fit the district to the screen.
         // #4 - Bonus: Show a popup with the address and district info.
 
-        let houseLabel = "H" + house;
-        let senateLabel = "S" + senate;
-        mapManager.shadePolygon(houseLabel);
-        mapManager.shadePolygon(senateLabel, '#e55734');
-        mapManager.panTo(obj);
+        // Get the selected district type and ID based on the clicked address's data attributes
+        const selectedType = getSelectedDistrictType();
+        const selectedDistrictId = selectedType === 'senate' ? senate : house;
+        const selectedDistrictLabel = (selectedType === 'senate' ? 'S' : 'H') + selectedDistrictId;
+        const selectedDistrict = selectedType === 'senate'
+            ? districtManager.getSenateDistrict(selectedDistrictId)
+            : districtManager.getHouseDistrict(selectedDistrictId);
+
+        if (!selectedDistrict)
+        {
+            return;
+        }
+        // Pan and zoom to the district
+        const contentCallback = selectedType === 'senate'
+            ? () => selectedDistrict.getSenateDistrictInfo()
+            : () => selectedDistrict.getHouseDistrictInfo();
+
+        // Shade the selected district and make it clickable to show an info window
+        mapManager.shadePolygon(selectedDistrictLabel, selectedType === 'senate' ? '#e55734' : '#2b6cb0');
+        await mapManager.makePolygonClickable(selectedDistrictLabel, true, contentCallback, {
+            openInfoWindow: true,
+            infoWindowPosition: obj
+        });
     }
 }
 
@@ -166,11 +202,7 @@ async function draw() {
 function render() {
 
     const select = document.getElementById('district-select');
-    const selectedType = select?.value === 'senate' ? 'senate' : 'house';
-    if (select && !select.value)
-    {
-        select.value = 'house';
-    }
+    const selectedType = getSelectedDistrictType();
 
     function keyFunction(key) {
         if (selectedType === 'house')
@@ -183,7 +215,39 @@ function render() {
     }
 
     mapManager.render(keyFunction);
+    shadeSelectedDistricts(selectedType);
     // mapManager.renderZoomFunction((entry) => { entry.minZoom > currentZoomLevel });
+}
+
+function shadeSelectedDistricts(selectedType) {
+    if (!mapManager)
+    {
+        return;
+    }
+
+    if (selectedType === 'house')
+    {
+        for (let houseId in latestGroupedByHouse)
+        {
+            mapManager.shadePolygon('H' + houseId);
+        }
+    } else if (selectedType === 'senate')
+    {
+        for (let senateId in latestGroupedBySenate)
+        {
+            mapManager.shadePolygon('S' + senateId, '#e55734');
+        }
+    }
+}
+
+function getSelectedDistrictType() {
+    const select = document.getElementById('district-select');
+    if (select && !select.value)
+    {
+        select.value = 'house';
+    }
+
+    return select?.value === 'senate' ? 'senate' : 'house';
 }
 
 function getSubmitFunction(setAddresses) {
@@ -213,7 +277,7 @@ async function onSubmit(event, setAddresses) {
     mapManager.resetPolygons();
     mapManager.clearMarkers();
     districtManager.clearAllAddresses();
-
+    render();
 
 
     // Process the addresses, geocoding and finding districts, with caching.
@@ -223,6 +287,9 @@ async function onSubmit(event, setAddresses) {
 
     let groupedByHouse = Object.groupBy(addresses, a => a.house);
     let groupedBySenate = Object.groupBy(addresses, a => a.senate);
+
+    latestGroupedByHouse = groupedByHouse;
+    latestGroupedBySenate = groupedBySenate;
 
     for (let houseId in groupedByHouse)
     {
@@ -239,13 +306,12 @@ async function onSubmit(event, setAddresses) {
     }
 
 
-    for (let houseId in groupedByHouse)
-    {
-        mapManager.shadePolygon('H' + houseId);
-    }
+    const selectedType = getSelectedDistrictType();
+    shadeSelectedDistricts(selectedType);
 
 
     setAddresses(addresses);
+    resultDiv.textContent = '';
 }
 
 
