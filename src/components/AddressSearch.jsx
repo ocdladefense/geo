@@ -8,12 +8,12 @@ export default function AddressSearch({ onSubmit }) {
     return (
 
         <form id="district-lookup" method="post" onSubmit={onSubmit}>
+            <div className="w-auto">
+                <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
+                <input type="text" className="w-full" style={{ borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" placeholder="Enter address" />
 
-            <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
-            <textarea type="text" style={{ width: "99%", borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" rows="3" cols="60" placeholder="Enter address" />
-
-            <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
-
+                <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
+            </div>
 
         </form>
 

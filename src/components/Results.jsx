@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import ResultsTable from './districts/ResultsTable.jsx';
 import useModal from './hooks/useModal.js';
 import Modal from './ui/Modal.jsx';
@@ -10,7 +10,7 @@ export default function Results({ addresses = [], onClick = () => { } }, groupBy
 
     const containerRef = useRef(null);
     const { isOpen, modalContent, modalExternalNode, openModal, openModalWithNode, closeModal } = useModal();
-    let table1 = null;
+    let externalNode = null;
     let table2 = null;
 
     const handleOpenCustomModal = () => {
@@ -20,26 +20,36 @@ export default function Results({ addresses = [], onClick = () => { } }, groupBy
     };
 
 
+    useEffect(() => {
+        // Append the external DOM node to the container after the component mounts
+        if (containerRef.current && addresses.length > 0)
+        {
+            // Base case.
+            externalNode = ResultsTable(addresses);
+            table2 = ResultsTable(addresses);
+            externalNode.addEventListener('click', onClick);
+            table2.addEventListener('click', e => { onClick(e); closeModal(); });
+            containerRef.current.appendChild(externalNode);
+        }
+
+        // Optional cleanup function to remove the node when the component unmounts
+        return () => {
+            if (containerRef.current && externalNode)
+            {
+                containerRef.current.removeChild(externalNode);
+            }
+        };
+    }); // Rerun if the external node changes
 
 
-
-    if (containerRef.current)
-    {
-        // Base case.
-        table1 = ResultsTable(addresses);
-        table2 = ResultsTable(addresses);
-        table1.addEventListener('click', onClick);
-        table2.addEventListener('click', e => { onClick(e); closeModal(); });
-        containerRef.current.appendChild(table1);
-    }
 
     let styles = addresses.length > 0 ? { display: 'block', marginTop: '20px' } : { display: 'none' };
 
     return (
         <div id="results" style={styles}>
 
+            <button onClick={handleOpenCustomModal} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '20px' }} id="find-district" type="button">More results</button>
 
-            <a onClick={handleOpenCustomModal}>Modal</a>
 
             <Modal isOpen={isOpen} content={modalContent} externalNode={modalExternalNode} onClose={closeModal} />
 

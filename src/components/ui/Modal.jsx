@@ -18,6 +18,7 @@ export default function Modal({ isOpen, onClose, confirmAction, content, externa
 
         // Optional cleanup function to remove the node when the component unmounts
         return () => {
+            return;
             if (containerRef.current && externalNode)
             {
                 containerRef.current.removeChild(externalNode);

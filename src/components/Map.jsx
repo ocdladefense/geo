@@ -36,14 +36,15 @@ export default function Map() {
             render();
             // Add event listener for district type selection
             const select = document.getElementById('district-select');
-            if (select) {
+            if (select)
+            {
                 // When the district type changes, we want to re-render the map to show the appropriate districts.
                 const onDistrictChange = () => render();
                 select.addEventListener('change', onDistrictChange);
                 cleanup = () => select.removeEventListener('change', onDistrictChange);
             }
         }
-        
+
         initialize();
 
         // Cleanup function to remove event listeners when the component unmounts
@@ -57,7 +58,7 @@ export default function Map() {
 
             <div className="static tablet:absolute tablet:w-[25%] top-[40px] left-[10px] z-10">
 
-                <div id="form-container" className="block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
+                <div id="form-container" className="block w-auto tablet:w-[120%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
                     <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
                 </div>
 
