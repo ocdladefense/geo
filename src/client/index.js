@@ -42,9 +42,6 @@ root.render(
         <ScrollToTop />
         <Routes>
             <Route path="/" element={<App />}>
-                <Route path="map">
-                    <Route index element={<Map />} />
-                </Route>
                 <Route path="sites">
                     <Route index element={<Sites />} />
                 </Route>
@@ -52,6 +49,9 @@ root.render(
                     <Route index element={<LegislativeActionHome />} />
                     <Route path=":type" element={<LegislativeAction />} />
                 </Route>
+            </Route>
+            <Route path="/map">
+                <Route index element={<Map />} />
             </Route>
         </Routes>
     </BrowserRouter>
