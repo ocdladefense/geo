@@ -58,12 +58,12 @@ export default function Map() {
 
             <div className="static tablet:absolute tablet:w-[25%] top-[40px] left-[10px] z-10">
 
-                <div id="form-container" className="block w-auto tablet:w-[120%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
+                <div id="form-container" className="block absolute top-[0px] left-[0px] w-auto tablet:static tablet:w-[120%]" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '15px' }}>
                     <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
                 </div>
 
 
-                <div className="block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
+                <div className="hidden tablet:block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
                     <label for="district-select">Features</label><br />
                     <select id="district-select" className="mb-4">
                         <option value="">--Select feature--</option>
@@ -77,9 +77,10 @@ export default function Map() {
 
             </div>
 
-            <div className="overflow-y-scroll overflow-x-visible block min-h-auto w-[100%] tablet:min-h-[200px] tablet:max-h-[200px] tablet:w-[750px] tablet:absolute tablet:bottom-0" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: "20px", borderRadius: '5px' }}>
-                <Results addresses={addresses} onClick={handleResultClick} groupByField="none" />
-            </div>
+            {addresses.length > 0 &&
+                <div className="block absolute bottom-0 left-0 overflow-y-scroll overflow-x-visible min-h-auto w-[100%] tablet:min-h-[200px] tablet:max-h-[200px] tablet:w-[750px] tablet:absolute tablet:bottom-0" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: "20px", borderRadius: '5px' }}>
+                    <Results addresses={addresses} onClick={handleResultClick} groupByField="none" />
+                </div>}
 
             <div id="map" style={{ flex: 1, width: '100%', height: '100%' }}></div>
         </div >
