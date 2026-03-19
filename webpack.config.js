@@ -145,8 +145,8 @@ export default env => {
                         to: path.resolve(__dirname, "dist/cache")
                     },
                     "src/.nojekyll",
-                    "src/manifest.json",
-                    "src/sw.js",
+                    // "src/manifest.json",
+                    // "src/sw.js",
                     "src/robots.txt",
                     "src/.htaccess"
                 ]
