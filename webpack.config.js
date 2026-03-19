@@ -121,12 +121,6 @@ export default env => {
                 inject: "body",
                 filename: "index.html"
             }),
-            new HtmlWebpackPlugin({
-                template: path.resolve(__dirname, "./src/pages/map.html"),
-                chunks: ["map"],
-                inject: "body",
-                filename: "map.html"
-            }),
             new InterpolateHtmlPlugin({
                 GOOGLE_TAG_ID: env.GOOGLE_TAG_ID
             }),
@@ -145,6 +139,7 @@ export default env => {
                         to: path.resolve(__dirname, "dist/cache")
                     },
                     "src/.nojekyll",
+                    "src/pages/map.html",
                     // "src/manifest.json",
                     // "src/sw.js",
                     "src/robots.txt",
