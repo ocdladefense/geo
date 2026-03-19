@@ -33,6 +33,7 @@ export default function Map() {
         //
         async function initialize() {
             await draw();
+            window.scrollBy(0, 100);
             render();
             // Add event listener for district type selection
             const select = document.getElementById('district-select');
@@ -56,7 +57,7 @@ export default function Map() {
 
     return (
         <>
-            <div id="map" className="wrapper" style={{ width: "100vw", height: '100vh', position: "absolute", top: "0px", left: "0px" }}> </div>
+            <div id="map" className="wrapper" style={{ width: "100svw", height: '120svh', position: "absolute", top: "0px", left: "0px" }}> </div>
 
 
         </>
