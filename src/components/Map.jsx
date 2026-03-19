@@ -24,34 +24,18 @@ export default function Map() {
     let [addresses, setAddresses] = useState([]);
     let submitFunction = getSubmitFunction(setAddresses);
     // // Check if the "Group By District" checkbox is checked
-    const orderByDistrict = document.getElementById('order-by-district')?.checked ?? false;
+    const groupByDistrict = document.getElementById('group-by-district')?.checked ?? false;
 
 
 
     useEffect(function() {
-        let cleanup = () => { };
-        //
+
         async function initialize() {
             await draw();
-            // window.scrollBy(0, 100);
             render();
-            // Add event listener for district type selection
-            const select = document.getElementById('district-select');
-            if (select)
-            {
-                // When the district type changes, we want to re-render the map to show the appropriate districts.
-                const onDistrictChange = () => render();
-                select.addEventListener('change', onDistrictChange);
-                cleanup = () => select.removeEventListener('change', onDistrictChange);
-            }
         }
 
         initialize();
-
-        // Cleanup function to remove event listeners when the component unmounts
-        return function() {
-            cleanup();
-        };
     }, []); // Run once on component mount  padding-left: env(safe-area-inset-left);
 
 
@@ -214,8 +198,7 @@ async function draw() {
 // Work #3 - Render and rerender.
 function render() {
 
-    const select = document.getElementById('district-select');
-    const selectedType = getSelectedDistrictType();
+    let selectedType = "house";
 
     function keyFunction(key) {
         if (selectedType === 'house')
@@ -228,9 +211,10 @@ function render() {
     }
 
     mapManager.render(keyFunction);
-    shadeSelectedDistricts(selectedType);
-    // mapManager.renderZoomFunction((entry) => { entry.minZoom > currentZoomLevel });
 }
+
+
+
 
 function shadeSelectedDistricts(selectedType) {
     if (!mapManager)
@@ -313,7 +297,8 @@ async function onSubmit(event, setAddresses) {
 
 function otherStuff() {
 
-
+    shadeSelectedDistricts(selectedType);
+    // mapManager.renderZoomFunction((entry) => { entry.minZoom > currentZoomLevel });
     let groupedByHouse = Object.groupBy(addresses, a => a.house);
     let groupedBySenate = Object.groupBy(addresses, a => a.senate);
 
