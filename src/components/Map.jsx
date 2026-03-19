@@ -57,38 +57,42 @@ export default function Map() {
 
     return (
         <>
+
             <div id="map" style={{ width: "100%", height: '100%', position: "absolute", top: 0, left: 0 }}> </div>
 
 
-            <div className="relative h-[100vh] w-[100%] overflow-auto tablet:overflow-hidden">
+            <div className="relative z-10 width-[100%] p-4 box-border" style={{ border: 0, margin: "0 auto", borderRadius: "10", }}>
 
-                <div className="static tablet:absolute tablet:w-[25%] top-[40px] left-[10px] z-10">
-
-                    <div id="form-container" className="block w-auto tablet:static" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '15px' }}>
-                        <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
-                    </div>
-
-
-                    <div className="hidden tablet:block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
-                        <label for="district-select">Features</label><br />
-                        <select id="district-select" className="mb-4">
-                            <option value="">--Select feature--</option>
-                            <option value="house">House Districts</option>
-                            <option value="senate">Senate Districts</option>
-                        </select>
-
-
-                        <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '20px' }} id="find-district" type="button">Reset zoom</button>
-                    </div>
-
+                <div id="form-container" className="block w-auto tablet:static" style={{ backgroundColor: "rgba(255,255,255,0.9)", padding: '20px', boxSizing: 'border-box', margin: '10px', borderRadius: '15px' }}>
+                    <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
                 </div>
+            </div>
+
+
+
+
+            <div className="fixed z-10 w-[100%] p-4 box-border" style={{ bottom: 0, left: 0, minHeight: "120px", border: 0, margin: "0 auto", borderRadius: "10", }}>
+
+                <div style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
+                    <label for="district-select">Features</label><br />
+                    <select id="district-select" className="mb-4">
+                        <option value="">--Select feature--</option>
+                        <option value="house">House Districts</option>
+                        <option value="senate">Senate Districts</option>
+                    </select>
+
+
+                    <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '20px' }} id="find-district" type="button">Reset zoom</button>
+                </div>
+
 
                 {addresses.length > 0 &&
                     <div className="block absolute bottom-0 left-0 overflow-y-scroll overflow-x-visible min-h-auto w-[100%] tablet:min-h-[200px] tablet:max-h-[200px] tablet:w-[750px] tablet:absolute tablet:bottom-0" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: "20px", borderRadius: '5px' }}>
                         <Results addresses={addresses} onClick={handleResultClick} groupByField="none" />
                     </div>}
-
             </div>
+
+
 
         </>
     );
