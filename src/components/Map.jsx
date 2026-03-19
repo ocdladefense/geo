@@ -60,7 +60,7 @@ export default function Map() {
             <div id="map" style={{ width: "100svw", height: '120svh', position: "absolute", top: 0, left: 0 }}> </div>
 
 
-            <div id="form-container" className="block w-auto" style={{ position: "absolute", top: "0px", left: "0px", backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '15px' }}>
+            <div id="form-container" className="top-[100px] tablet:top-[0px] block w-auto" style={{ position: "absolute", left: "0px", backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '15px' }}>
                 <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
             </div>
 
