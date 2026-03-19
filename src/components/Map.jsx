@@ -33,7 +33,7 @@ export default function Map() {
         //
         async function initialize() {
             await draw();
-            // window.scrollBy(0, 100);
+            window.scrollBy(0, 100);
             render();
             // Add event listener for district type selection
             const select = document.getElementById('district-select');
