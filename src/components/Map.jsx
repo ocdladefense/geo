@@ -55,9 +55,8 @@ export default function Map() {
 
     return (
         <>
-            <div id="map" style={{ width: '100%', height: '100%', position: "static" }}>
+            <div id="map" style={{ width: '100%', height: '100%', position: "fixed", top: 0, left: 0 }}></div>
 
-            </div>
             <div className="relative h-[100vh] w-[100%] overflow-auto tablet:overflow-hidden">
 
                 <div className="static tablet:absolute tablet:w-[25%] top-[40px] left-[10px] z-10">
