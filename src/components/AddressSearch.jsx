@@ -10,9 +10,9 @@ export default function AddressSearch({ onSubmit }) {
         <form id="district-lookup" method="post" onSubmit={onSubmit}>
             <div className="w-auto">
                 <label style={{ fontSize: 'larger', display: "none" }} htmlFor="address">Enter Address:</label>
-                <input type="text" className="w-full" style={{ borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" placeholder="Enter address" />
+                <input type="text" className="w-full" style={{ width: "75%", border: 0, borderRadius: "3px", padding: '10px', fontSize: 'larger' }} id="address" name="address" placeholder="Enter address" />
 
-                <button style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '5px', marginRight: "5px" }} id="find-district" type="submit">Find district</button>
+                <button style={{ backgroundColor: "#ccc", border: 0, borderRadius: "21px", padding: '10px', fontSize: 'larger', width: "15%" }} id="find-district" type="submit">Go</button>
             </div>
 
         </form>
