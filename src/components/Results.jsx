@@ -43,7 +43,7 @@ export default function Results({ addresses = [], onClick = () => { } }, groupBy
 
 
 
-    let styles = addresses.length > 0 ? { display: 'block' } : { display: 'none' };
+    let styles = addresses.length > 0 ? { display: 'block', width: "140%" } : { display: 'none' };
 
     return (
         <div id="results" style={styles}>

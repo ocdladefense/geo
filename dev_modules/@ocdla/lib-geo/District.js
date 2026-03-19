@@ -195,23 +195,26 @@ export default class District {
 
     // Build info window content for this district
     async getHouseDistrictInfo() {
-        const addressList = this.addresses.map(addr => `${addr.address}`);
 
         return `
-            <div><strong>House District ${this.id}</strong><br>
-            <b>Address(es):</b><br>${addressList.join('<br>')}<br><br>
-            ${this.legislator ? `<b>Representative: </b>${this.legislator.FirstName} ${this.legislator.LastName}<br>${this.legislator.Party}<br>${this.legislator.EmailAddress}<br><br>` : ''}
+            <div>
+                <strong>House District ${this.id}</strong><br />
+                <img src="${this.legislator.ImageUrl}" alt="Photo of ${this.legislator.FirstName} ${this.legislator.LastName}" style="width:100px;height:auto;"><br />
+                <b>Representative: </b><br />${this.legislator.FirstName} ${this.legislator.LastName} (${this.legislator.Party})<br />
+                <a href="mailto:${this.legislator.EmailAddress}">${this.legislator.EmailAddress}</a>
             </div>
         `;
     }
 
+    // Build info window content for this district
     async getSenateDistrictInfo() {
-        const addressList = this.addresses.map(addr => `${addr.address}`);
 
         return `
-            <div><strong>Senate District ${this.id}</strong><br>
-            <b>Address(es):</b><br>${addressList.join('<br>')}<br><br>
-            ${this.legislator ? `<b>Senator: </b>${this.legislator.FirstName} ${this.legislator.LastName}<br>${this.legislator.Party}<br>${this.legislator.EmailAddress}<br><br>` : ''}
+            <div>
+                <strong>Senate District ${this.id}</strong><br />
+                <img src="${this.legislator.ImageUrl}" alt="Photo of ${this.legislator.FirstName} ${this.legislator.LastName}" style="width:100px;height:auto;"><br />
+                <b>Senator: </b><br />${this.legislator.FirstName} ${this.legislator.LastName} (${this.legislator.Party})<br />
+                <a href="mailto:${this.legislator.EmailAddress}">${this.legislator.EmailAddress}</a>
             </div>
         `;
     }

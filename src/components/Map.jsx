@@ -63,7 +63,7 @@ export default function Map() {
                 </div>
 
 
-                <div id="form-container" className="block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
+                <div className="block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
                     <label for="district-select">Features</label><br />
                     <select id="district-select" className="mb-4">
                         <option value="">--Select feature--</option>
@@ -75,10 +75,10 @@ export default function Map() {
                     <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '20px' }} id="find-district" type="button">Reset zoom</button>
                 </div>
 
+            </div>
 
-                <div id="form-container" className="overflow-scroll block min-h-auto w-[100%] tablet:min-h-[200px] tablet:max-h-[200px] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: "20px", borderRadius: '5px' }}>
-                    <Results addresses={addresses} onClick={handleResultClick} groupByField="none" />
-                </div>
+            <div className="overflow-y-scroll overflow-x-visible block min-h-auto w-[100%] tablet:min-h-[200px] tablet:max-h-[200px] tablet:w-[750px] tablet:absolute tablet:bottom-0" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: "20px", borderRadius: '5px' }}>
+                <Results addresses={addresses} onClick={handleResultClick} groupByField="none" />
             </div>
 
             <div id="map" style={{ flex: 1, width: '100%', height: '100%' }}></div>
@@ -264,7 +264,7 @@ async function onSubmit(event, setAddresses) {
 
     const addressInput = document.getElementById('address').value;
     const resultDiv = document.getElementById('result');
-    resultDiv.textContent = 'Checking...';
+    // resultDiv.textContent = 'Checking...';
 
 
     // Parse addresses
@@ -284,6 +284,22 @@ async function onSubmit(event, setAddresses) {
     // Process the addresses, geocoding and finding districts, with caching.
     let addresses = await processAddresses(districtManager, input, addr => { let marker = mapManager.drawMarker(addr); mapManager.renderObject(marker); });
 
+
+    // otherStuff();
+
+
+    setAddresses(addresses);
+    // resultDiv.textContent = '';
+}
+
+
+
+
+
+
+
+
+function otherStuff() {
 
 
     let groupedByHouse = Object.groupBy(addresses, a => a.house);
@@ -310,14 +326,4 @@ async function onSubmit(event, setAddresses) {
     const selectedType = getSelectedDistrictType();
     shadeSelectedDistricts(selectedType);
 
-
-    setAddresses(addresses);
-    resultDiv.textContent = '';
 }
-
-
-
-
-
-
-

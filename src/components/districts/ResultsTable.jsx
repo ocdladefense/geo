@@ -18,7 +18,6 @@ function TableWrapper(rows) {
     `;
 
     let table = document.createElement('table');
-    table.style.width = '100%';
     table.style.borderCollapse = 'collapse';
 
     table.innerHTML = guts;
