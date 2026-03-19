@@ -57,16 +57,18 @@ export default function Map() {
 
     return (
         <>
-            <div id="map" className="wrapper" style={{ width: "100svw", height: '120svh', position: "absolute", top: "0px", left: "0px" }}> </div>
+            <div id="map" className="wrapper" style={{ width: "100svw", height: '120svh' }}> </div>
 
-            <div className="relative h-[100vh] w-[100%] overflow-auto tablet:overflow-hidden">
 
-                <div className="static tablet:absolute tablet:w-[25%] top-[40px] left-[10px] z-10">
+            <div id="form-container" className="block absolute top-[0px] left-[0px] w-auto" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '15px' }}>
+                <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
+            </div>
 
-                    <div id="form-container" className="block absolute top-[0px] left-[0px] w-auto tablet:static tablet:w-[120%]" style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '15px' }}>
-                        <AddressSearch mapManager={mapManager} onSubmit={submitFunction} />
-                    </div>
 
+            <div className="w-[100%] h-[100px]" style={{ position: "absolute", bottom: "50px", left: "0px", zIndex: "1", backgroundColor: "rgba(255,255,255,0.9)", padding: '20px', boxSizing: 'border-box', margin: '10px', marginBottom: '20px', borderRadius: '15px' }}>
+
+
+                <div>
 
                     <div className="hidden tablet:block w-[100%] " style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
                         <label for="district-select">Features</label><br />
@@ -87,7 +89,7 @@ export default function Map() {
                         <Results addresses={addresses} onClick={handleResultClick} groupByField="none" />
                     </div>}
 
-            </div>
+            </div >
         </>
     );
 }
