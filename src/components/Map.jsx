@@ -57,16 +57,24 @@ export default function Map() {
 
             <div className="fixed z-10 w-[100%] p-4 box-border" style={{ bottom: 0, left: 0, minHeight: "120px", border: 0, margin: "0 auto", borderRadius: "10", }}>
 
+
+
+
+
                 <div style={{ backgroundColor: "rgba(255,255,255,0.9)", zIndex: "1", padding: '20px', boxSizing: 'border-box', margin: '10px', marginTop: '20px', borderRadius: '5px' }}>
-                    <label for="district-select">Features</label><br />
-                    <select id="district-select" className="mb-4">
-                        <option value="">--Select feature--</option>
-                        <option value="house">House Districts</option>
-                        <option value="senate">Senate Districts</option>
-                    </select>
 
 
-                    <button onClick={() => mapManager.resetZoom()} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '20px' }} id="find-district" type="button">Reset zoom</button>
+                    <details className="dropdown">
+                        <summary className="btn m-1">Select Feature</summary>
+                        <ul className="menu dropdown-content bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                            <li><a>House Districts</a></li>
+                            <li><a>Senate Districts</a></li>
+                        </ul>
+                    </details>
+
+
+
+                    <button className="btn" onClick={() => mapManager.resetZoom()} id="find-district">Reset zoom</button>
                 </div>
 
 

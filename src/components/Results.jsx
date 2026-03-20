@@ -48,13 +48,14 @@ export default function Results({ addresses = [], onClick = () => { } }, groupBy
     return (
         <div id="results" style={styles}>
 
-            <button onClick={handleOpenCustomModal} style={{ backgroundColor: "#ccc", borderRadius: "3px", padding: '10px', fontSize: 'larger', marginTop: '20px' }} id="find-district" type="button">More results</button>
+            <button onClick={handleOpenCustomModal} className="btn btn-active">Default</button>
 
 
             <Modal isOpen={isOpen} content={modalContent} externalNode={modalExternalNode} onClose={closeModal} />
 
             {/*<label htmlFor="order-by-district" style={{ fontSize: 'larger' }}>Order by district</label>
             <input type="checkbox" id="order-by-district" name="order-by-district" style={{ marginLeft: '10px' }} /> */}
+
 
             <div id="result" ref={containerRef} />
         </div>

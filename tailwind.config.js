@@ -1,5 +1,3 @@
-/** @type {import('tailwindcss').Config} */
-
 import defaultTheme from "tailwindcss/defaultTheme";
 
 export default {
@@ -35,7 +33,7 @@ export default {
                 "wb-red": "#D0375C", // brick red
                 "wb-lime": "#B5E179", // yellow green
                 "wb-blue": "#394657", // oxford blue
-                "wb-orange": "#F68544", // jaffa
+                "wb-orange": "#F68544",
                 "wb-black": "rgb(24 24 27)",
                 "default-paragraph-black": "rgba(200, 200, 200, 0.8)",
                 "wb-gray": "#F5F6F8",
@@ -51,6 +49,5 @@ export default {
                 "sunshine-dark": "rgb(158,50,48)"
             }
         }
-    },
-    plugins: [require("@tailwindcss/forms")]
+    }
 };

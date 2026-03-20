@@ -326,7 +326,7 @@ export default class MapManager {
         this.map.fitBounds(bounds);
         this.map.panTo(bounds.getCenter());
         this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
-        
+
     }
 
     // Shade districts and make them clickable with info windows
@@ -471,12 +471,6 @@ async function initMap() {
     map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(div);
     // map.controls[google.maps.ControlPosition.TOP_RIGHT].push(document.createElement("div"));
 
-
-    google.maps.event.addDomListener(window, "resize", function() {
-        var center = map.getCenter();
-        google.maps.event.trigger(map, 'resize');
-        map.setCenter(center);
-    });
 
 
 
