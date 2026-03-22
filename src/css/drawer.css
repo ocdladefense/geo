@@ -6,7 +6,7 @@
     height: 80px; /* Collapsed state: initial height */
     background-color: #fff;
     color: black;
-    transition: height 0.2s ease-out; /* Smooth transition for height change */
+    /* transition: height 0.2s ease-out; /* Smooth transition for height change */ 
     justify-content: center;
     align-items: center;
     overflow: hidden; /* Hide content when collapsed */
