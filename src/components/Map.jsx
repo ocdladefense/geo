@@ -36,6 +36,7 @@ export default function Map() {
         }
 
         initialize();
+        foobar();
     }, []); // Run once on component mount  padding-left: env(safe-area-inset-left);
 
 
@@ -55,7 +56,7 @@ export default function Map() {
 
 
 
-            <div className="fixed z-10 w-[100%] p-4 box-border" style={{ bottom: 0, left: 0, minHeight: "120px", border: 0, margin: "0 auto", borderRadius: "10", }}>
+            <div id="expandingDiv" className="bottom-drawer fixed z-10 w-[100%] p-4 box-border" style={{ bottom: 0, left: 0, minHeight: "120px", border: 0, margin: "0 auto", borderRadius: "10", }}>
 
 
 
@@ -153,6 +154,54 @@ domReady(async function() {
     await districtManager.loadRepresentatives();
     await districtManager.loadSenators();
 });
+
+
+
+function foobar() {
+
+
+    const expandingDiv = document.getElementById('expandingDiv');
+    let touchstartY = 0;
+    let touchendY = 0;
+    const swipeThreshold = 50; // Minimum vertical distance for a swipe
+
+    expandingDiv.addEventListener('touchstart', handleTouchStart, false);
+    expandingDiv.addEventListener('touchend', handleTouchEnd, false);
+
+    function handleTouchStart(event) {
+        touchstartY = event.changedTouches[0].clientY;
+    }
+
+    function handleTouchEnd(event) {
+        touchendY = event.changedTouches[0].clientY;
+        handleGesture();
+    }
+
+    function handleGesture() {
+        const diffY = touchstartY - touchendY; // Positive for swipe up, negative for swipe down
+
+        if (Math.abs(diffY) > swipeThreshold)
+        {
+            if (diffY > 0)
+            {
+                // Swiped up
+                console.log("Swiped up");
+                expandingDiv.classList.add('expanded');
+            } else
+            {
+                // Swiped down
+                console.log("Swiped down");
+                expandingDiv.classList.remove('expanded');
+            }
+        }
+        // Reset touch coordinates for the next gesture
+        touchstartY = 0;
+        touchendY = 0;
+    }
+
+
+
+}
 
 
 // Work #2 - Draw district outlines on the map.
