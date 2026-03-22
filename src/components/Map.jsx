@@ -54,11 +54,9 @@ export default function Map() {
             </div>
 
 
+            <div id="expanding-div" className="bottom-drawer fixed z-10 w-[100%] p-4 pt-2 box-border" style={{ bottom: 0, left: 0, minHeight: "120px", border: 0, margin: "0 auto", borderRadius: "10", }}>
 
-
-            <div id="expandingDiv" className="bottom-drawer fixed z-10 w-[100%] p-4 box-border" style={{ bottom: 0, left: 0, minHeight: "120px", border: 0, margin: "0 auto", borderRadius: "10", }}>
-
-
+                <div id="expanding-div-handle" style={{ height: "15px", padding: "10px" }}><hr style={{ color: "#ccc" }} /></div>
 
 
 
@@ -160,25 +158,51 @@ domReady(async function() {
 function foobar() {
 
 
-    const expandingDiv = document.getElementById('expandingDiv');
-    let touchstartY = 0;
-    let touchendY = 0;
-    const swipeThreshold = 50; // Minimum vertical distance for a swipe
+    const expandingDiv = document.getElementById('expanding-div');
+    const handle = document.getElementById('expanding-div-handle');
+    let previousHeight = parseInt(window.getComputedStyle(expandingDiv).height);
+    let height = expandingDiv.height;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    const swipeThreshold = 50; // Minimum vertical distance for a swipe.
 
-    expandingDiv.addEventListener('touchstart', handleTouchStart, false);
-    expandingDiv.addEventListener('touchend', handleTouchEnd, false);
+    handle.addEventListener('touchstart', handleTouchStart, false);
+    handle.addEventListener('touchmove', handleTouchMove, false);
+    handle.addEventListener('touchend', handleTouchEnd, false);
 
-    function handleTouchStart(event) {
-        touchstartY = event.changedTouches[0].clientY;
+    function handleTouchStart(e) {
+        e.preventDefault();
+        touchStartY = e.changedTouches[0].clientY;
     }
 
-    function handleTouchEnd(event) {
-        touchendY = event.changedTouches[0].clientY;
-        handleGesture();
+
+    function handleTouchMove(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        console.log("touch move", touch.clientY);
+        const newY = touchStartY - touch.clientY; // Positive for swipe up, negative for swipe down
+
+        let newHeight = previousHeight + newY;
+        expandingDiv.style.height = newHeight + "px";
+        // handleGesture();
+    }
+
+    function handleTouchEnd(e) {
+        e.preventDefault();
+        console.log("touch end");
+        touchStartY = 0;
+        touchEndY = 0;
     }
 
     function handleGesture() {
-        const diffY = touchstartY - touchendY; // Positive for swipe up, negative for swipe down
+        const diffY = touchStartY - touchEndY; // Positive for swipe up, negative for swipe down
+        let currentHeight = parseInt(window.getComputedStyle(expandingDiv).height);
+        expandingDiv.style.height = (currentHeight + diffY) + "px";
+
+        touchStartY = 0;
+        touchEndY = 0;
+
+        return;
 
         if (Math.abs(diffY) > swipeThreshold)
         {
@@ -195,14 +219,12 @@ function foobar() {
             }
         }
         // Reset touch coordinates for the next gesture
-        touchstartY = 0;
-        touchendY = 0;
+
     }
 
 
 
 }
-
 
 // Work #2 - Draw district outlines on the map.
 async function draw() {
