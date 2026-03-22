@@ -14,3 +14,7 @@
 .bottom-drawer.expanded {
     height: 50vh; /* Expanded state: full height */
 }
+
+.bottom-drawer {
+    touch-action:none;
+}

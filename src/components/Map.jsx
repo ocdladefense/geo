@@ -173,6 +173,7 @@ function foobar() {
     function handleTouchStart(e) {
         e.preventDefault();
         touchStartY = e.changedTouches[0].clientY;
+        previousHeight = parseInt(window.getComputedStyle(expandingDiv).height);
     }
 
 
