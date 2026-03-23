@@ -2,6 +2,11 @@ import { createScriptElement, injectScriptElement } from "@ocdla/lib-utils/html.
 
 
 
+const DEFAULT_ZOOM = 6;
+const DEFAULT_CENTER = { lat: 43.9336, lng: -122.00 };
+
+
+
 export default class MapManager {
 
 
@@ -227,7 +232,7 @@ export default class MapManager {
         if (content)
         {
             polygon.addListener('click', async (event) => {
-                this.zoomToFeature(polygon);
+                // this.zoomToFeature(polygon);
                 const infoContent = await content(event);
                 const infoWindow = new google.maps.InfoWindow({ content: infoContent });
                 infoWindow.setPosition(event.latLng);
@@ -289,7 +294,6 @@ export default class MapManager {
 
     panTo(location) {
         this.map.panTo(location);
-        this.map.setZoom(9); // Zoom to an appropriate level for viewing the district
     }
 
 
@@ -323,11 +327,19 @@ export default class MapManager {
             return;
         }
 
-        this.map.fitBounds(bounds);
         this.map.panTo(bounds.getCenter());
-        this.map.setZoom(10); // Zoom to an appropriate level for viewing the district
-
     }
+
+
+    fitBounds(p1, p2) {
+        p1 = p1 || { lng: -124.56417, lat: 42.0 };
+        p2 = p2 || { lng: -116.91666, lat: 46.0 };
+
+        const bounds = new google.maps.LatLngBounds(p1, p2);
+
+        this.map.fitBounds(bounds);
+    }
+
 
     // Shade districts and make them clickable with info windows
     async makePolygonClickable(id, clickable = true, contentCallback = null, options = {}) {
@@ -414,6 +426,10 @@ export default class MapManager {
         // 43.9336°N 120.5583°W﻿
     }
 
+    setZoom(zoomLevel) {
+        this.map.setZoom(zoomLevel);
+    }
+
 
     // Clear all polygons and markers from the map
     clearAll() {
@@ -451,8 +467,8 @@ async function initMap() {
     let center2 = { lat: 44.010, lng: -122.00 };
     // Initialize the map
     let map = new google.maps.Map(mapEl, {
-        zoom: 7,
-        center: center2,
+        zoom: DEFAULT_ZOOM,
+        center: DEFAULT_CENTER,
         mapTypeId: 'roadmap',
         gestureHandling: 'greedy',
         mapTypeControl: false
