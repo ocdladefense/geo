@@ -20,7 +20,8 @@ export default env => {
         },
         entry: {
             app: path.resolve(__dirname, "./src/client/index.js"),
-            map: path.resolve(__dirname, "./src/client/map.js")
+            map: path.resolve(__dirname, "./src/client/map.js"),
+            test: path.resolve(__dirname, "./src/client/index-test.js")
         },
         optimization: {
             splitChunks: {

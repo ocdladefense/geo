@@ -1,23 +1,31 @@
 {
   "presets": [
     [
-      "@babel/preset-env"
-      //{ "modules": false } //commented out for Jest compatibility
+      "@babel/preset-env",
+      { "modules": false }
     ],
     [
       "@babel/preset-react",
       {
-        //commented out pragma properties for jest compatibility
-        //"pragma": "vNode", // default pragma is React.createElement (only in classic runtime)
-        //"pragmaFrag": "Fragment", // default is React.Fragment (only in classic runtime)
+        // Commented out pragma properties for jest compatibility
+        // "pragma": "vNode", // default pragma is React.createElement (only in classic runtime)
+        // "pragmaFrag": "Fragment", // default is React.Fragment (only in classic runtime)
         "throwIfNamespace": false, // defaults to true
         "runtime": "automatic", // defaults to classic
         "targets": {
           "chrome": "120"
-        }
-        // "importSource": "custom-jsx-library" // defaults to react (only in automatic runtime)
+        },
+        "importSource": "@local/jsx" // Defaults to "react/jsx-runtime" (only in automatic runtime), but we are overriding it here so we can see what JSX really is.
       }
     ]
+  ],
+  "plugins": [
+    ["module-resolver", {
+      "root": ["./"],
+      "alias": {
+        "@local/jsx/jsx-runtime": "./node_modules/@local/jsx/jsx-runtime.js"
+      }
+    }]
   ],
   "sourceMaps": true
 }
