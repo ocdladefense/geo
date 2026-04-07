@@ -75,3 +75,4 @@ Git submodules can be added to this repository using the <code>git submodule add
 * https://www.material-tailwind.com/blocks
 * https://sentry.io/answers/how-to-change-the-css-background-opacity-of-an-element/
 * Adobe Express
+# node-jsx-sfdx-template
